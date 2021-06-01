@@ -23,4 +23,14 @@
             <directory suffix=".php">src</directory>
         </include>
     </coverage>
+     <!-- add your own values  
+         <php>
+        <const name="SMTP2GO_API_KEY" value="" />
+        <const name="SMTP2GO_TEST_RECIPIENT_NAME" value="" />
+        <const name="SMTP2GO_TEST_RECIPIENT_EMAIL" value="" />
+        <const name="SMTP2GO_TEST_SENDER" value="" />
+        <const name="SMTP2GO_TEST_SENDER_NAME" value="" />
+        <const name="SMTP2GO_TEST_SENDER_EMAIL" value="" />
+        <const name="SMTP2GO_TEST_SUBJECT" value="" />
+    </php> -->
 </phpunit>

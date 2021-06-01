@@ -53,18 +53,18 @@ class Send implements BuildsRequests
     protected $subject;
 
     /**
-     * The email message
+     * The html email message
      *
      * @var string
      */
-    protected $message;
+    protected $html_body;
 
     /**
      * The plain text part of a multipart email
      *
      * @var string
      */
-    protected $alt_message;
+    protected $text_body;
 
     /**
      * Custom email headers
@@ -74,25 +74,18 @@ class Send implements BuildsRequests
     protected $headers;
 
     /**
-     * Attachments not added through the $attachments variable
+     * Attachments
      *
      * @var string|array
      */
     protected $attachments;
 
     /**
-     * Inline attachments, only supported through this class
+     * Inline attachments
      *
      * @var string|array
      */
     protected $inlines;
-
-    /**
-     * The content type of the email, can be either text/plain or text/html
-     *
-     * @var string
-     */
-    protected $content_type = '';
 
     /**
      * endpoint to send to
@@ -101,20 +94,27 @@ class Send implements BuildsRequests
      */
     private const ENDPOINT = 'email/send';
 
+    /**
+     * The HTTP Method to use
+     */
     private const HTTP_METHOD = 'POST';
 
     /**
-     * Create instance - arguments mirror those of the mail function
+     * ```$sendService = new Send(['example@email.com','John Doe'], [['email1@example.test','Jane Doe']], 'My Subject', 'My Message');```
      *
-     * @param mixed $recipients
-     * @param mixed $subject
-     * @param mixed $message
-     * @param mixed $headers
-     * @param mixed $attachments
+     * @param array $sender may contain 1 or 2 values with email address and name
+     * @param array $recipients may contain multiple arrays with 1 or 2 values with email address and optional name
+     * @param string $subject the email subject line
+     * @param string $message the body of the email either HTML or Plain Text
+     *
+     *
      */
-    public function __construct(array $sender, $recipients, $subject, $message)
+    public function __construct(array $sender, array $recipients, string $subject, string $message)
     {
-        $this->setSender(...$sender)->setRecipients($recipients)->setSubject($subject)->setMessage($message);
+        $this->setSender(...$sender)
+            ->setRecipients($recipients)
+            ->setSubject($subject)
+            ->setBody($message);
     }
 
     /**
@@ -133,22 +133,36 @@ class Send implements BuildsRequests
 
         $body['sender'] = $this->getSender();
 
+        $body['html_body'] = $this->getHtmlBody();
+        $body['text_body'] = $this->getTextBody();
 
-        if ($this->content_type === 'multipart/alternative') {
-            $body['html_body'] = $this->getMessage();
-            $body['text_body'] = $this->getAltMessage();
-        } elseif ($this->content_type === 'text/html') {
-            $body['html_body'] = $this->getMessage();
-        } else {
-            $body['html_body'] = $this->getMessage();
-            $body['text_body'] = $this->getMessage();
+        $body['custom_headers'] = $this->buildCustomHeaders();
+
+        $body['subject']     = $this->getSubject();
+        $body['attachments'] = $this->buildAttachments();
+        $body['inlines']     = $this->buildInlines();
+
+        return array_filter($body);
+    }
+
+    public function buildCustomHeaders()
+    {
+        $raw_custom_headers = $this->getCustomHeaders();
+
+        $custom_headers = array();
+
+        if (!empty($raw_custom_headers['header'])) {
+            foreach ($raw_custom_headers['header'] as $index => $header) {
+                if (!empty($header) && !empty($raw_custom_headers['value'][$index])) {
+                    $custom_headers[] = array(
+                        'header' => $header,
+                        'value'  => $raw_custom_headers['value'][$index],
+                    );
+                }
+            }
         }
 
-        $body['subject']        = $this->getSubject();
-        $body['attachments']    = $this->buildAttachments();
-        $body['inlines']        = $this->buildInlines();
-
-        return $body;
+        return $custom_headers;
     }
 
     public function buildAttachments()
@@ -191,7 +205,7 @@ class Send implements BuildsRequests
      * Build an array of bcc recipients by combining ones natively set
      * or passed through the $headers constructor variable
      *
-     * @since 1.0.1
+     * @since 1.0.0
      * @return array
      */
 
@@ -211,7 +225,7 @@ class Send implements BuildsRequests
      * Build an array of bcc recipients by combining ones natively set
      * or passed through the $headers constructor variable
      *
-     * @since 1.0.1
+     * @since 1.0.0
      * @return array
      */
     public function buildBCC()
@@ -228,7 +242,6 @@ class Send implements BuildsRequests
 
     private function rfc822($email)
     {
-        //if its just a plain old email wrap it up
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return '<' . $email . '>';
         }
@@ -351,9 +364,9 @@ class Send implements BuildsRequests
      *
      * @return  string
      */
-    public function getMessage()
+    public function getHtmlBody()
     {
-        return $this->message;
+        return $this->html_body;
     }
 
     /**
@@ -361,11 +374,11 @@ class Send implements BuildsRequests
      *
      * @param  string  $message  The email message
      *
-     * @return  self
+     * @return Send
      */
-    public function setMessage(string $message)
+    public function setHtmlBody(string $htmlBody): Send
     {
-        $this->message = $message;
+        $this->html_body = $htmlBody;
 
         return $this;
     }
@@ -381,32 +394,37 @@ class Send implements BuildsRequests
     }
 
     /**
-     * Set the email recipients
+     * Set the email recipients - this clears any previously added recipients
      *
-     * @param  string|array  $recipients  the email recipients
+     * @param  array  $recipients the email recipients
      *
-     * @return  self
+     * @return  Send
      */
-    public function setRecipients($recipients)
+    public function setRecipients(array $recipients): Send
     {
-        if (!empty($recipients)) {
-            if (is_string($recipients)) {
-                $this->recipients = array($recipients);
-            } else {
-                $this->recipients = $recipients;
-            }
-        }
+        $this->recipients = [];
+
+        $this->addAddresses('recipients', $recipients);
 
         return $this;
     }
 
-    public function addRecipient($email, $name = '')
+    private function addAddresses(string $addressType, array $addresses)
+    {
+        foreach ($addresses as $addressesItem) {
+            if (is_iterable($addressesItem)) {
+                $this->addAddress($addressType, ...$addressesItem);
+            }
+        }
+    }
+
+    private function addAddress(string $addressType, $email, $name = '')
     {
         if (!empty($name)) {
-            $email              = str_replace(['<', '>'], '', $email);
-            $this->recipients[] = "$name <$email>";
+            $email                = str_replace(['<', '>'], '', $email);
+            $this->$addressType[] = "$name <$email>";
         } else {
-            $this->recipients[] = "$email";
+            $this->$addressType[] = "$email";
         }
     }
 
@@ -427,9 +445,9 @@ class Send implements BuildsRequests
      *
      * @return  self
      */
-    public function setBcc($bcc)
+    public function setBcc(array $bcc)
     {
-        $this->bcc = $bcc;
+        $this->bcc = [];
 
         return $this;
     }
@@ -507,54 +525,57 @@ class Send implements BuildsRequests
     }
 
     /**
-     * Get the email content type
-     */
-    public function getContentType()
-    {
-        return $this->content_type;
-    }
-
-    /**
-     * Set the email content type
-     * @param string
-     * @return  self
-     */
-    public function setContentType($content_type)
-    {
-        $content_type = trim(strtolower($content_type));
-
-        if (in_array($content_type, array('text/plain', 'text/html', 'multipart/alternative'))) {
-            $this->content_type = $content_type;
-        }
-
-        return $this;
-    }
-
-    /**
      * Get the plain text part of a multipart email
      *
      * @return  string
      */
-    public function getAltMessage()
+    public function getTextBody()
     {
-        return $this->alt_message;
+        return $this->text_body;
     }
 
     /**
      * Set the plain text part of a multipart email
      *
-     * @param  string  $alt_message  The plain text part of a multipart email
+     * @param  string  $text_body  The plain text part of a multipart email
      *
      * @return  self
      */
-    public function setAltMessage(string $alt_message)
+    public function setTextBody(string $text_body)
     {
-        $this->alt_message = $alt_message;
+        $this->text_body = $text_body;
 
         return $this;
     }
 
+    /**
+     * Sets the appropriate body field based on content - this clears
+     * any previously set body fields
+     *
+     * @param string $body
+     * @return Send
+     */
+    public function setBody(string $body): Send
+    {
+        $this->html_body = '';
+        $this->text_body = '';
 
+        if (preg_match('/(\<(\/?[^\>]+)\>)/', $body)) {
+            $this->html_body = $body;
+        } else {
+            $this->text_body = $body;
+        }
+        return $this;
+    }
 
+    /**
+     * Get custom headers
+     *
+     * @return  array
+     */
+    public function getCustomHeaders()
+    {
+        return $this->custom_headers;
+    }
 
 }

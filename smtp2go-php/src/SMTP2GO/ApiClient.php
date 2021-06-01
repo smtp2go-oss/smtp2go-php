@@ -21,7 +21,7 @@ class ApiClient
      *
      * @var \Psr\Http\Message\ResponseInterface
      */
-    protected $last_response = null;
+    protected $lastResponse = null;
 
     /**
      * Meta data about the last response from the api
@@ -35,7 +35,7 @@ class ApiClient
      *
      * @var string
      */
-    protected $api_key;
+    protected $apiKey;
 
     /**
      * store failed email sends, the plugin only sends one email at a time, so count will be 0 or 1
@@ -57,9 +57,15 @@ class ApiClient
         $this->httpClient = new Client;
     }
 
+    /**
+     * Set the SMTP2GO Api Key
+     *
+     * @param string $apiKey
+     * @return void
+     */
     public function setApiKey(string $apiKey)
     {
-        $this->api_key = $apiKey;
+        $this->apiKey = $apiKey;
     }
 
     /**
@@ -75,12 +81,12 @@ class ApiClient
 
         $payload = $service->buildRequestPayload();
 
-        $payload['api_key'] = $this->api_key;
+        $payload['apiKey'] = $this->apiKey;
 
         $basepath = dirname(__FILE__, 3);
 
         try {
-            $this->last_response = $this->httpClient->request(
+            $this->lastResponse = $this->httpClient->request(
                 $service->getMethod(),
                 static::API_URL . $service->getEndpoint(),
                 [
@@ -89,13 +95,14 @@ class ApiClient
                 ]
             );
         } catch (ClientException $e) {
+            /**@todo - decide what to do with at this point */
             echo Message::toString($e->getRequest());
             echo Message::toString($e->getResponse());
         }
         $code = null;
 
-        if (!empty($this->last_response)) {
-            $code = $this->last_response->getStatusCode(); // 200 or 400
+        if (!empty($this->lastResponse)) {
+            $code = $this->lastResponse->getStatusCode(); // 200 or 400
         }
 
         return $code === 200;
@@ -103,16 +110,16 @@ class ApiClient
 
     public function getResponseBody(): string
     {
-        if ($this->last_response) {
-            return (string) $this->last_response->getBody();
+        if ($this->lastResponse) {
+            return (string) $this->lastResponse->getBody();
         }
         return '';
     }
 
-    public function getResponseHeaders(): string
+    public function getResponseHeaders(): array
     {
-        if ($this->last_response) {
-            return (string) $this->last_response->getHeaders();
+        if ($this->lastResponse) {
+            return $this->lastResponse->getHeaders();
         }
         return '';
     }
@@ -124,7 +131,7 @@ class ApiClient
      */
     public function getClient(): Client
     {
-        return $this->client;
+        return $this->httpClient;
     }
 
     /**
@@ -134,9 +141,9 @@ class ApiClient
      *
      * @return  self
      */
-    public function setClient(Client $client)
+    public function setHttpClient(Client $httpClient)
     {
-        $this->client = $client;
+        $this->httpClient = $httpClient;
 
         return $this;
     }
