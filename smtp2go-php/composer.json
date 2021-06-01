@@ -1,0 +1,18 @@
+{
+    "name": "smtp2go-oss/smtp2go-php",
+    "description": "A library for sending email through the SMTP2GO Api",
+    "type": "library",
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    },
+    "require": {
+        "php": ">=7.2.0",
+        "guzzlehttp/guzzle": "^7.0",
+        "league/mime-type-detection": "^1.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "SMTP2GO\\": "src/SMTP2GO/"
+        }
+    }
+}
