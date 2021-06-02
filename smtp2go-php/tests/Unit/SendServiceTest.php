@@ -90,7 +90,7 @@ class SendServiceTest extends TestCase
      * @covers \SMTP2GO\Service\Mail\Send
      * @return void
      */
-    public function testbuildRequestPayloadWithHTMLMessage()
+    public function testbuildRequestBodyWithHTMLMessage()
     {
         $expected_json_body_string = '{"to":["' . SMTP2GO_TEST_RECIPIENT_NAME . ' <' . SMTP2GO_TEST_RECIPIENT_EMAIL . '>"],"sender":"\"' . SMTP2GO_TEST_SENDER_NAME . '\" <' . SMTP2GO_TEST_SENDER_EMAIL . '>","html_body":"<html><body><h1>Heading<\/h1><div>This is the message<\/div><\/body><\/html>","custom_headers":[{"header":"X-Test-Header","value":"Testing"}],"subject":"' . SMTP2GO_TEST_SUBJECT . '"}';
         $sendService               = $this->createTestInstance();
@@ -98,7 +98,7 @@ class SendServiceTest extends TestCase
         $sendService->setSubject(SMTP2GO_TEST_SUBJECT);
         $sendService->setBody('<html><body><h1>Heading</h1><div>This is the message</div></body></html>');
         $sendService->setRecipients([[SMTP2GO_TEST_RECIPIENT_EMAIL, SMTP2GO_TEST_RECIPIENT_NAME]]);
-        $request_data = $sendService->buildRequestPayload();
+        $request_data = $sendService->buildRequestBody();
 
         $this->assertJsonStringEqualsJsonString($expected_json_body_string, json_encode(array_filter($request_data)));
     }
@@ -108,7 +108,7 @@ class SendServiceTest extends TestCase
      * @covers \SMTP2GO\Service\Mail\Send
      * @return void
      */
-    public function testbuildRequestPayloadWithPlainTextMessage()
+    public function testbuildRequestBodyWithPlainTextMessage()
     {
         $expected_json_body_string = '{"to":["' . SMTP2GO_TEST_RECIPIENT_NAME . ' <' . SMTP2GO_TEST_RECIPIENT_EMAIL . '>"],"sender":"\"' . SMTP2GO_TEST_SENDER_NAME . '\" <' . SMTP2GO_TEST_SENDER_EMAIL . '>","text_body":"A Plain Message","custom_headers":[{"header":"X-Test-Header","value":"Testing"}],"subject":"' . SMTP2GO_TEST_SUBJECT . '"}';
         $sendService               = $this->createTestInstance();
@@ -116,7 +116,7 @@ class SendServiceTest extends TestCase
         $sendService->setSubject(SMTP2GO_TEST_SUBJECT);
         $sendService->setBody('A Plain Message');
         $sendService->setRecipients([[SMTP2GO_TEST_RECIPIENT_EMAIL, SMTP2GO_TEST_RECIPIENT_NAME]]);
-        $request_data = $sendService->buildRequestPayload();
+        $request_data = $sendService->buildRequestBody();
 
         $this->assertJsonStringEqualsJsonString($expected_json_body_string, json_encode(array_filter($request_data)));
     }
@@ -133,7 +133,7 @@ class SendServiceTest extends TestCase
 
         $sendService->setAttachments(dirname(__FILE__, 2) . '/Attachments/cat.jpg');
 
-        $request_data = $sendService->buildRequestPayload();
+        $request_data = $sendService->buildRequestBody();
 
         $this->assertArrayHasKey('attachments', $request_data);
 
@@ -151,7 +151,7 @@ class SendServiceTest extends TestCase
 
         $sendService->setInlines(dirname(__FILE__, 2) . '/Attachments/cat.jpg');
 
-        $request_data = $sendService->buildRequestPayload();
+        $request_data = $sendService->buildRequestBody();
 
         $this->assertArrayHasKey('inlines', $request_data);
 

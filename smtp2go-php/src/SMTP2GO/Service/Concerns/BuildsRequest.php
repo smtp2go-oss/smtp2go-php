@@ -2,7 +2,7 @@
 
 namespace SMTP2GO\Service\Concerns;
 
-interface BuildsRequests
+interface BuildsRequest
 {
     /**
      * Returns the HTTP Request Method Used for the endpoint GET|POST|PUT etc
@@ -19,10 +19,10 @@ interface BuildsRequests
     public function getEndpoint(): string;
 
     /**
-     * Builds the payload to send
+     * Builds the request body to send
      *
      * @return array
      */
-    public function buildRequestPayload(): array;
+    public function buildRequestBody(): array;
 
 }

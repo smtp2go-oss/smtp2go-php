@@ -1,18 +1,21 @@
 <?php
 namespace SMTP2GO\Service;
 
-use SMTP2GO\Service\Concerns\BuildsRequests;
+use SMTP2GO\Service\Concerns\BuildsRequest;
 
 /**
  * Generic service class which can be used to consume any endpoint in the API
  */
-class Service implements BuildsRequests
+class Service implements BuildsRequest
 {
+    /**
+     * Relative to the base api url e.g ***stats/email_bounces***
+     */
     protected $endpoint = '';
 
     protected $method = 'POST';
 
-    protected $payload = [];
+    protected $requestBody = [];
 
     public function __construct($endpoint)
     {
@@ -40,27 +43,27 @@ class Service implements BuildsRequests
     }
 
     /**
-     * Get the value of payload
+     * Get the value of RequestBody
      */
-    public function getPayload()
+    public function getRequestBody()
     {
-        return $this->payload;
+        return $this->requestBody;
     }
 
     /**
-     * Set the value of payload
+     * Set the value of RequestBody
      *
      * @return  self
      */
-    public function setPayload($payload)
+    public function setRequestBody($RequestBody)
     {
-        $this->payload = $payload;
+        $this->requestBody = $RequestBody;
 
         return $this;
     }
 
-    public function buildRequestPayload(): array
+    public function buildRequestBody(): array
     {
-        return $this->payload;
+        return $this->requestBody;
     }
 }

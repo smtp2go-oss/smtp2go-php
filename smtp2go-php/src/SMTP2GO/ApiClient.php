@@ -5,7 +5,9 @@ namespace SMTP2GO;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Message;
-use SMTP2GO\Service\Concerns\BuildsRequests;
+use GuzzleHttp\Psr7\Request;
+use Psr\Http\Message\RequestInterface;
+use SMTP2GO\Service\Concerns\BuildsRequest;
 
 class ApiClient
 {
@@ -24,11 +26,11 @@ class ApiClient
     protected $lastResponse = null;
 
     /**
-     * Meta data about the last response from the api
+     * If an exception is thrown during the request, the last request will be stored here
      *
-     * @var mixed
+     * @var \Psr\Http\Message\RequestInterface
      */
-    protected $last_meta;
+    protected $lastRequest = null;
 
     /**
      * Api key for the api service
@@ -36,13 +38,6 @@ class ApiClient
      * @var string
      */
     protected $apiKey;
-
-    /**
-     * store failed email sends, the plugin only sends one email at a time, so count will be 0 or 1
-     *
-     * @var array
-     */
-    private $failures = [];
 
     /**
      * The GuzzleHttp Client instance
@@ -71,17 +66,17 @@ class ApiClient
     /**
      * Consume a service on the SMTP2GO Api
      *
-     * @param \SMTP2GO\Service\Concerns\BuildsRequests $service
+     * @param \SMTP2GO\Service\Concerns\BuildsRequest $service
      * @since 1.0.0
      * @return bool
      */
-    public function consume(BuildsRequests $service): bool
+    public function consume(BuildsRequest $service): bool
     {
-        $payload = [];
+        $body = [];
+        // new Request()
+        $body = $service->buildRequestBody();
 
-        $payload = $service->buildRequestPayload();
-
-        $payload['apiKey'] = $this->apiKey;
+        $body['apiKey'] = $this->apiKey;
 
         $basepath = dirname(__FILE__, 3);
 
@@ -90,24 +85,28 @@ class ApiClient
                 $service->getMethod(),
                 static::API_URL . $service->getEndpoint(),
                 [
-                    'json'   => $payload,
+                    'json'   => $body,
                     'verify' => $basepath . '/ca-bundle.crt',
                 ]
             );
         } catch (ClientException $e) {
-            /**@todo - decide what to do with at this point */
-            echo Message::toString($e->getRequest());
-            echo Message::toString($e->getResponse());
+            $this->lastRequest  = $e->getRequest();
+            $this->lastResponse = $e->getResponse();
         }
-        $code = null;
+        $statusCode = null;
 
         if (!empty($this->lastResponse)) {
-            $code = $this->lastResponse->getStatusCode(); // 200 or 400
+            $statusCode = $this->lastResponse->getStatusCode(); // 200 or 400
         }
 
-        return $code === 200;
+        return $statusCode === 200;
     }
 
+    /**
+     * Return the response body as a string
+     *
+     * @return string
+     */
     public function getResponseBody(): string
     {
         if ($this->lastResponse) {
@@ -116,6 +115,11 @@ class ApiClient
         return '';
     }
 
+    /**
+     * Return the headers from the last response
+     *
+     * @return array
+     */
     public function getResponseHeaders(): array
     {
         if ($this->lastResponse) {
@@ -146,5 +150,15 @@ class ApiClient
         $this->httpClient = $httpClient;
 
         return $this;
+    }
+
+    /**
+     * Get last request - only set in the event of a ClientException being thrown
+     *
+     * @return  mixed
+     */
+    public function getLastRequest($asString = true)
+    {
+        return $asString ? Message::toString($this->lastRequest) : $this->lastRequest;
     }
 }

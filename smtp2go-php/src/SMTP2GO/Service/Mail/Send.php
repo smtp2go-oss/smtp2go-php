@@ -3,12 +3,12 @@
 namespace SMTP2GO\Service\Mail;
 
 use League\MimeTypeDetection\FinfoMimeTypeDetector;
-use SMTP2GO\Service\Concerns\BuildsRequests;
+use SMTP2GO\Service\Concerns\BuildsRequest;
 
 /**
  * Constructs the payload for sending email through the SMTP2GO Api
  */
-class Send implements BuildsRequests
+class Send implements BuildsRequest
 {
     /**
      * Custom headers
@@ -29,7 +29,7 @@ class Send implements BuildsRequests
      *
      * @var array
      */
-    protected $recipients = array();
+    protected $recipients = [];
 
     /**
      * The CC'd recipients
@@ -122,10 +122,10 @@ class Send implements BuildsRequests
      *
      * @return array
      */
-    public function buildRequestPayload(): array
+    public function buildRequestBody(): array
     {
         /** the body of the request which will be sent as json */
-        $body = array();
+        $body = [];
 
         $body['to']  = $this->buildRecipients();
         $body['cc']  = $this->buildCC();
@@ -149,7 +149,7 @@ class Send implements BuildsRequests
     {
         $raw_custom_headers = $this->getCustomHeaders();
 
-        $custom_headers = array();
+        $custom_headers = [];
 
         if (!empty($raw_custom_headers['header'])) {
             foreach ($raw_custom_headers['header'] as $index => $header) {
@@ -169,7 +169,7 @@ class Send implements BuildsRequests
     {
         $detector = new FinfoMimeTypeDetector();
 
-        $attachments = array();
+        $attachments = [];
 
         foreach ((array) $this->attachments as $path) {
             $file_contents = file_get_contents($path);
@@ -187,7 +187,7 @@ class Send implements BuildsRequests
     {
         $detector = new FinfoMimeTypeDetector();
 
-        $inlines = array();
+        $inlines = [];
 
         foreach ((array) $this->inlines as $path) {
             $file_contents = file_get_contents($path);
@@ -211,7 +211,7 @@ class Send implements BuildsRequests
 
     public function buildCC()
     {
-        $cc_recipients = array();
+        $cc_recipients = [];
         foreach ((array) $this->cc as $cc_recipient) {
             if (!empty($cc_recipient)) {
                 $cc_recipients[] = $this->rfc822($cc_recipient);
@@ -230,7 +230,7 @@ class Send implements BuildsRequests
      */
     public function buildBCC()
     {
-        $bcc_recipients = array();
+        $bcc_recipients = [];
         foreach ((array) $this->bcc as $bcc_recipient) {
             if (!empty($bcc_recipient)) {
                 $bcc_recipients[] = $this->rfc822($bcc_recipient);
@@ -240,7 +240,13 @@ class Send implements BuildsRequests
         return $bcc_recipients;
     }
 
-    private function rfc822($email)
+    /**
+     * Wrap plain emails in the rfc822 format
+     *
+     * @param string $email
+     * @return string
+     */
+    private function rfc822(string $email)
     {
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return '<' . $email . '>';
@@ -250,12 +256,12 @@ class Send implements BuildsRequests
 
     /**
      * create an array of recipients to send to the api
-     * @todo check how these are formatted and parse appropriately
-     * @return void
+     *
+     * @return array
      */
-    public function buildRecipients()
+    public function buildRecipients(): array
     {
-        $recipients = array();
+        $recipients = [];
 
         if (!is_array($this->recipients)) {
             $recipients[] = $this->rfc822($this->recipients);
@@ -577,5 +583,4 @@ class Send implements BuildsRequests
     {
         return $this->custom_headers;
     }
-
 }
