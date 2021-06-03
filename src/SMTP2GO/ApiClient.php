@@ -2,11 +2,12 @@
 
 namespace SMTP2GO;
 
+use GuzzleHttp\Utils;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Psr7\Request;
 use Psr\Http\Message\RequestInterface;
+use GuzzleHttp\Exception\ClientException;
 use SMTP2GO\Service\Concerns\BuildsRequest;
 
 class ApiClient
@@ -56,7 +57,6 @@ class ApiClient
      */
     protected $clientOptions = [];
 
-
     public function __construct($apiKey)
     {
         $this->setApiKey($apiKey);
@@ -89,7 +89,7 @@ class ApiClient
     public function consume(BuildsRequest $service): bool
     {
         $body = [];
-        // new Request()
+        
         $body = $service->buildRequestBody();
 
         $body['api_key'] = $this->apiKey;
@@ -121,14 +121,19 @@ class ApiClient
     /**
      * Return the response body as a string
      *
-     * @return string
+     * @return \stdClass|string
      */
-    public function getResponseBody(): string
+    public function getResponseBody($asJson = true)
     {
-        if ($this->lastResponse) {
-            return (string) $this->lastResponse->getBody();
+        if (!$this->lastResponse) {
+            return '';
         }
-        return '';
+        if (!$asJson) {
+            return $this->lastResponse;
+        }
+        if ($this->lastResponse) {
+            return Utils::jsonDecode((string) $this->lastResponse->getBody());
+        }
     }
 
     /**
@@ -171,7 +176,7 @@ class ApiClient
     /**
      * Get last request - only set in the event of a ClientException being thrown
      *
-     * @return  mixed
+     * @return  string|Request
      */
     public function getLastRequest($asString = true)
     {
