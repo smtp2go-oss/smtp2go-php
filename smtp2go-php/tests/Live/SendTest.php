@@ -19,7 +19,7 @@ class SendTest extends TestCase
         $sendService->addAddress('cc', 'kris.johansen@gmail.com');
         $sendService->addAddress('bcc', 'kris.r.johansen@icloud.com');
 
-        $sendService->setAttachments(dirname(__FILE__, 2) . '/Attachments/cat.jpg');
+        $sendService->setAttachments([dirname(__FILE__, 2) . '/Attachments/cat.jpg']);
 
         
         $apiClient = new ApiClient(SMTP2GO_API_KEY);
