@@ -32,10 +32,8 @@ $success = $apiClient->consume($sendService);
 $responseBody = $apiClient->getResponseBody();
 ```
 
-### Consuming an endpoint in the API
+### Consuming an endpoint in the API using the generic Service class
 ```php
 
- $success = $client->consume(
-    (new Service('domain/verify', ['domain' => $this_host]))
-);
+ $success = $client->consume((new Service('domain/verify', ['domain' => 'mydomain.tld'])));
 ```
