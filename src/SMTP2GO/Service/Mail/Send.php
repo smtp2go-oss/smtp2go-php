@@ -201,10 +201,6 @@ class Send implements BuildsRequest
         return $inlines;
     }
 
-
-
-
-
     /**
      * Get endpoint to send to
      *
@@ -350,15 +346,16 @@ class Send implements BuildsRequest
      *
      * @param string $addressType either 'to', 'cc', 'bcc'
      * @param array $addresses the array should contain multiple arrays with 1 or 2 values with email address and optional name
-     * @return void
+     * @return Send
      */
-    public function addAddresses(string $addressType, array $addresses)
+    public function addAddresses(string $addressType, array $addresses): Send
     {
         foreach ($addresses as $addressesItem) {
             if (is_iterable($addressesItem)) {
                 $this->addAddress($addressType, ...$addressesItem);
             }
         }
+        return $this;
     }
 
     /**
@@ -367,12 +364,12 @@ class Send implements BuildsRequest
      * @param string $addressType either 'to', 'cc', 'bcc'
      * @param string $email
      * @param string $name
-     * @return void
+     * @return Send
      */
 
-    public function addAddress(string $addressType, $email, $name = '')
+    public function addAddress(string $addressType, $email, $name = ''): Send
     {
-        if (!in_array($addressType, ['to','cc','bcc'])) {
+        if (!in_array($addressType, ['to', 'cc', 'bcc'])) {
             throw new InvalidArgumentException('$addressType must be one of either "to", "cc" or "bcc"');
         }
         if (!empty($name)) {
@@ -381,6 +378,7 @@ class Send implements BuildsRequest
         } else {
             $this->$addressType[] = "$email";
         }
+        return $this;
     }
 
     /**
@@ -447,7 +445,7 @@ class Send implements BuildsRequest
     /**
      * Set attachments as an array of filepaths e.g ```['/path/to/file1.txt','/path/to/file2.jpg']```
      *
-     * @param  string|array  $attachments
+     * @param  array  $attachments
      *
      * @return  Send
      */
@@ -461,7 +459,7 @@ class Send implements BuildsRequest
     /**
      * Get inline attachments
      *
-     * @return  string|array
+     * @return array
      */
     public function getInlines()
     {
@@ -469,9 +467,9 @@ class Send implements BuildsRequest
     }
 
     /**
-     * Set inline attachments
+     * Set inline attachments as an array of filepaths e.g ```['/path/to/file1.txt','/path/to/file2.jpg']```
      *
-     * @param  string|array  $inlines  Inline attachments
+     * @param  array  $inlines  Inline attachments
      *
      * @return  Send
      */
