@@ -37,7 +37,7 @@ class ApiClient
      * Api key for the api service
      *
      * @var string
-     * @see https://app.smtp2go.com/settings/apikeys/
+     * @link https://app.smtp2go.com/settings/apikeys/
      */
     protected $apiKey;
 
@@ -74,6 +74,13 @@ class ApiClient
         $this->apiKey = $apiKey;
     }
 
+    /**
+     * Set options for the GuzzleHTTP Client
+     *
+     * @param array $options
+     * @return void
+     * @link https://docs.guzzlephp.org/en/stable/request-options.html
+     */
     public function setClientOptions(array $options)
     {
         $this->clientOptions = $options;
@@ -112,7 +119,7 @@ class ApiClient
         $statusCode = null;
 
         if (!empty($this->lastResponse)) {
-            $statusCode = $this->lastResponse->getStatusCode(); // 200 or 400
+            $statusCode = $this->lastResponse->getStatusCode();
         }
 
         return $statusCode === 200;
