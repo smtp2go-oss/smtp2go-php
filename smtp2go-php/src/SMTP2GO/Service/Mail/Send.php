@@ -2,6 +2,7 @@
 
 namespace SMTP2GO\Service\Mail;
 
+use InvalidArgumentException;
 use League\MimeTypeDetection\FinfoMimeTypeDetector;
 use SMTP2GO\Service\Concerns\BuildsRequest;
 
@@ -15,7 +16,7 @@ class Send implements BuildsRequest
      *
      * @var array
      */
-    protected $custom_headers;
+    protected $custom_headers = [];
 
     /**
      * Sender RFC-822 formatted email "John Smith <john@example.com>"
@@ -29,21 +30,21 @@ class Send implements BuildsRequest
      *
      * @var array
      */
-    protected $recipients = [];
+    protected $to = [];
 
     /**
      * The CC'd recipients
      *
-     * @var string|array
+     * @var array
      */
-    protected $cc;
+    protected $cc = [];
 
     /**
      * The BCC'd recipients
      *
-     * @var string|array
+     * @var array
      */
-    protected $bcc;
+    protected $bcc = [];
 
     /**
      * The email subject
@@ -69,21 +70,21 @@ class Send implements BuildsRequest
     /**
      * Custom email headers
      *
-     * @var string|array
+     * @var array
      */
     protected $headers;
 
     /**
      * Attachments
      *
-     * @var string|array
+     * @var array
      */
     protected $attachments;
 
     /**
      * Inline attachments
      *
-     * @var string|array
+     * @var array
      */
     protected $inlines;
 
@@ -103,10 +104,9 @@ class Send implements BuildsRequest
      * ```$sendService = new Send(['example@email.com','John Doe'], [['email1@example.test','Jane Doe']], 'My Subject', 'My Message');```
      *
      * @param array $sender may contain 1 or 2 values with email address and name
-     * @param array $recipients may contain multiple arrays with 1 or 2 values with email address and optional name
+     * @param array $recipients the array should contain multiple arrays with 1 or 2 values with email address and optional name
      * @param string $subject the email subject line
      * @param string $message the body of the email either HTML or Plain Text
-     *
      *
      */
     public function __construct(array $sender, array $recipients, string $subject, string $message)
@@ -127,9 +127,9 @@ class Send implements BuildsRequest
         /** the body of the request which will be sent as json */
         $body = [];
 
-        $body['to']  = $this->buildRecipients();
-        $body['cc']  = $this->buildCC();
-        $body['bcc'] = $this->buildBCC();
+        $body['to']  = $this->to;
+        $body['cc']  = $this->cc;
+        $body['bcc'] = $this->bcc;
 
         $body['sender'] = $this->getSender();
 
@@ -201,79 +201,9 @@ class Send implements BuildsRequest
         return $inlines;
     }
 
-    /**
-     * Build an array of bcc recipients by combining ones natively set
-     * or passed through the $headers constructor variable
-     *
-     * @since 1.0.0
-     * @return array
-     */
 
-    public function buildCC()
-    {
-        $cc_recipients = [];
-        foreach ((array) $this->cc as $cc_recipient) {
-            if (!empty($cc_recipient)) {
-                $cc_recipients[] = $this->rfc822($cc_recipient);
-            }
-        }
 
-        return $cc_recipients;
-    }
 
-    /**
-     * Build an array of bcc recipients by combining ones natively set
-     * or passed through the $headers constructor variable
-     *
-     * @since 1.0.0
-     * @return array
-     */
-    public function buildBCC()
-    {
-        $bcc_recipients = [];
-        foreach ((array) $this->bcc as $bcc_recipient) {
-            if (!empty($bcc_recipient)) {
-                $bcc_recipients[] = $this->rfc822($bcc_recipient);
-            }
-        }
-
-        return $bcc_recipients;
-    }
-
-    /**
-     * Wrap plain emails in the rfc822 format
-     *
-     * @param string $email
-     * @return string
-     */
-    private function rfc822(string $email)
-    {
-        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return '<' . $email . '>';
-        }
-        return $email;
-    }
-
-    /**
-     * create an array of recipients to send to the api
-     *
-     * @return array
-     */
-    public function buildRecipients(): array
-    {
-        $recipients = [];
-
-        if (!is_array($this->recipients)) {
-            $recipients[] = $this->rfc822($this->recipients);
-        } else {
-            foreach ($this->recipients as $recipient_item) {
-                if (!empty($recipient_item)) {
-                    $recipients[] = $this->rfc822($recipient_item);
-                }
-            }
-        }
-        return $recipients;
-    }
 
     /**
      * Get endpoint to send to
@@ -282,7 +212,7 @@ class Send implements BuildsRequest
      */
     public function getEndpoint(): string
     {
-        return static::ENDPOINT;
+        return Send::ENDPOINT;
     }
 
     /**
@@ -292,7 +222,7 @@ class Send implements BuildsRequest
      */
     public function getMethod(): string
     {
-        return static::HTTP_METHOD;
+        return Send::HTTP_METHOD;
     }
 
     /**
@@ -327,7 +257,7 @@ class Send implements BuildsRequest
      * @param string $email
      * @param string $name
      *
-     * @return static
+     * @return Send
      */
     public function setSender($email, $name = ''): Send
     {
@@ -356,7 +286,7 @@ class Send implements BuildsRequest
      *
      * @param  string  $subject  The email subject
      *
-     * @return static
+     * @return Send
      */
     public function setSubject(string $subject): Send
     {
@@ -396,26 +326,33 @@ class Send implements BuildsRequest
      */
     public function getRecipients()
     {
-        return $this->recipients;
+        return $this->to;
     }
 
     /**
      * Set the email recipients - this clears any previously added recipients
      *
-     * @param  array  $recipients the email recipients
+     * @param  array  $recipients the array should contain multiple arrays with 1 or 2 values with email address and optional name
      *
      * @return  Send
      */
     public function setRecipients(array $recipients): Send
     {
-        $this->recipients = [];
+        $this->to = [];
 
-        $this->addAddresses('recipients', $recipients);
+        $this->addAddresses('to', $recipients);
 
         return $this;
     }
 
-    private function addAddresses(string $addressType, array $addresses)
+    /**
+     * add multiple addresses of a specified type
+     *
+     * @param string $addressType either 'to', 'cc', 'bcc'
+     * @param array $addresses the array should contain multiple arrays with 1 or 2 values with email address and optional name
+     * @return void
+     */
+    public function addAddresses(string $addressType, array $addresses)
     {
         foreach ($addresses as $addressesItem) {
             if (is_iterable($addressesItem)) {
@@ -424,8 +361,20 @@ class Send implements BuildsRequest
         }
     }
 
-    private function addAddress(string $addressType, $email, $name = '')
+    /**
+     * add a single addresses of a specified type
+     *
+     * @param string $addressType either 'to', 'cc', 'bcc'
+     * @param string $email
+     * @param string $name
+     * @return void
+     */
+
+    public function addAddress(string $addressType, $email, $name = '')
     {
+        if (!in_array($addressType, ['to','cc','bcc'])) {
+            throw new InvalidArgumentException('$addressType must be one of either "to", "cc" or "bcc"');
+        }
         if (!empty($name)) {
             $email                = str_replace(['<', '>'], '', $email);
             $this->$addressType[] = "$name <$email>";
@@ -445,21 +394,22 @@ class Send implements BuildsRequest
     }
 
     /**
-     * Set the BCC'd recipients
+     * Set the BCC'd recipients. This clears any previously added BCC addresses
      *
-     * @param  string|array  $bcc  The BCC'd recipients
+     * @param  array  $bcc  The BCC'd recipients may contain multiple arrays with 1 or 2 values with email address and optional name
      *
      * @return  self
      */
     public function setBcc(array $bcc)
     {
         $this->bcc = [];
+        $this->addAddresses('bcc', $bcc);
 
         return $this;
     }
 
     /**
-     * Get the CC'd recipients
+     * Get the CC'd recipients. This clears any previously added CC addresses
      *
      * @return  string|array
      */
@@ -469,21 +419,23 @@ class Send implements BuildsRequest
     }
 
     /**
-     * Set the CC'd recipients
+     * Set the CC'd recipients. This clears any previously added CC addresses.
      *
-     * @param  string|array  $cc  The CC'd recipients
+     * @param  array  $cc  The CC'd recipients may contain multiple arrays with 1 or 2 values with email address and optional name
      *
-     * @return  self
+     * @return  Send
      */
-    public function setCc($cc)
+    public function setCc($cc): Send
     {
-        $this->cc = $cc;
+        $this->cc = [];
+
+        $this->addAddresses('cc', $cc);
 
         return $this;
     }
 
     /**
-     * Get attachments not added through the $attachments variable
+     * Get attachments
      *
      * @return  string|array
      */
@@ -493,13 +445,13 @@ class Send implements BuildsRequest
     }
 
     /**
-     * Set attachments not added through the $attachments variable
+     * Set attachments as an array of filepaths e.g ```['/path/to/file1.txt','/path/to/file2.jpg']```
      *
-     * @param  string|array  $attachments Attachments not added through the $attachments variable
+     * @param  string|array  $attachments
      *
-     * @return  self
+     * @return  Send
      */
-    public function setAttachments($attachments)
+    public function setAttachments($attachments): Send
     {
         $this->attachments = $attachments;
 
@@ -517,13 +469,13 @@ class Send implements BuildsRequest
     }
 
     /**
-     * Set inline attachments, only supported through this class
+     * Set inline attachments
      *
      * @param  string|array  $inlines  Inline attachments
      *
-     * @return  self
+     * @return  Send
      */
-    public function setInlines($inlines)
+    public function setInlines($inlines): Send
     {
         $this->inlines = $inlines;
 
@@ -545,9 +497,9 @@ class Send implements BuildsRequest
      *
      * @param  string  $text_body  The plain text part of a multipart email
      *
-     * @return  self
+     * @return  Send
      */
-    public function setTextBody(string $text_body)
+    public function setTextBody(string $text_body): Send
     {
         $this->text_body = $text_body;
 
@@ -579,7 +531,7 @@ class Send implements BuildsRequest
      *
      * @return  array
      */
-    public function getCustomHeaders()
+    public function getCustomHeaders(): array
     {
         return $this->custom_headers;
     }

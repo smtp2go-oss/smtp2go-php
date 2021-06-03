@@ -19,7 +19,7 @@ class ApiClient
     const API_URL = 'https://api.smtp2go.com/v3/';
 
     /**
-     * The last response relieved from the api as a json object
+     * The last response recieved from the api as a json object
      *
      * @var \Psr\Http\Message\ResponseInterface
      */
@@ -36,6 +36,7 @@ class ApiClient
      * Api key for the api service
      *
      * @var string
+     * @see https://app.smtp2go.com/settings/apikeys/
      */
     protected $apiKey;
 
@@ -45,6 +46,16 @@ class ApiClient
      * @var \GuzzleHttp\Client
      */
     protected $httpClient;
+
+    /**
+     * Array of key value pairs to pass to The GuzzleHttp Client instance
+     * These will override any default options used by \SMTP2GO\ApiClient
+     *
+     * @var array
+     * @link https://docs.guzzlephp.org/en/stable/request-options.html
+     */
+    protected $clientOptions = [];
+
 
     public function __construct($apiKey)
     {
@@ -63,6 +74,11 @@ class ApiClient
         $this->apiKey = $apiKey;
     }
 
+    public function setClientOptions(array $options)
+    {
+        $this->clientOptions = $options;
+    }
+
     /**
      * Consume a service on the SMTP2GO Api
      *
@@ -76,7 +92,7 @@ class ApiClient
         // new Request()
         $body = $service->buildRequestBody();
 
-        $body['apiKey'] = $this->apiKey;
+        $body['api_key'] = $this->apiKey;
 
         $basepath = dirname(__FILE__, 3);
 
@@ -84,7 +100,7 @@ class ApiClient
             $this->lastResponse = $this->httpClient->request(
                 $service->getMethod(),
                 static::API_URL . $service->getEndpoint(),
-                [
+                $this->clientOptions + [
                     'json'   => $body,
                     'verify' => $basepath . '/ca-bundle.crt',
                 ]

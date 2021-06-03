@@ -17,9 +17,16 @@ class Service implements BuildsRequest
 
     protected $requestBody = [];
 
-    public function __construct($endpoint)
+    /**
+     *
+     * @param string $endpoint relative to the api base URL
+     * @param array $requestBody an array of key value pairs to send to the endpoint
+     * @link https://apidoc.smtp2go.com/documentation/#/README
+     */
+    public function __construct(string $endpoint, $requestBody = [])
     {
         $this->setEndpoint($endpoint);
+        $this->setRequestBody($requestBody);
     }
 
     public function getEndpoint(): string
@@ -37,7 +44,13 @@ class Service implements BuildsRequest
         return $this->method;
     }
 
-    public function setMethod($method)
+    /**
+     * Set the HTTP Method for the service
+     *
+     * @param string $method
+     * @return void
+     */
+    public function setMethod(string $method)
     {
         $this->method = $method;
     }
@@ -45,7 +58,7 @@ class Service implements BuildsRequest
     /**
      * Get the value of RequestBody
      */
-    public function getRequestBody()
+    public function getRequestBody(): array
     {
         return $this->requestBody;
     }
@@ -53,15 +66,20 @@ class Service implements BuildsRequest
     /**
      * Set the value of RequestBody
      *
-     * @return  self
+     * @return  Service
      */
-    public function setRequestBody($RequestBody)
+    public function setRequestBody(array $requestBody): Service
     {
-        $this->requestBody = $RequestBody;
+        $this->requestBody = $requestBody;
 
         return $this;
     }
 
+    /**
+     * Build the request body to be sent to the api
+     *
+     * @return array
+     */
     public function buildRequestBody(): array
     {
         return $this->requestBody;

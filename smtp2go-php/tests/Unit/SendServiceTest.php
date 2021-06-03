@@ -30,8 +30,9 @@ class SendServiceTest extends TestCase
     public function testMultipleRecipientsCanBeAdded()
     {
         $sendService = $this->createTestInstance();
-
-        return $this->assertCount(2, $sendService->getRecipients());
+        $sendService->addAddress('to', 'test@test.test');
+        
+        return $this->assertCount(3, $sendService->getRecipients());
     }
     /**
      * @covers \SMTP2GO\Service\Mail\Send
@@ -75,8 +76,6 @@ class SendServiceTest extends TestCase
      */
     public function testBuildCustomHeaders()
     {
-        //use the same stored format
-
         $sendService = $this->createTestInstance();
 
         $formatted_headers = $sendService->buildCustomHeaders();
