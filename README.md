@@ -34,6 +34,7 @@ $responseBody = $apiClient->getResponseBody();
 
 ### Consuming an endpoint in the API using the generic Service class
 ```php
+$apiClient = new ApiClient('api-YOURAPIKEY');
 
- $success = $client->consume((new Service('domain/verify', ['domain' => 'mydomain.tld'])));
+$success = $client->consume((new Service('domain/verify', ['domain' => 'mydomain.tld'])));
 ```
