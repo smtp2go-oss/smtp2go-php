@@ -5,14 +5,13 @@ This library provides a simple way to send email via the SMTP2GO Api and also ac
 ## Examples
 
 ### Sending an Email
-```
-<?php
+```php
 
 use SMTP2GO\ApiClient;
 use SMTP2GO\Service\Mail\Send as MailSend;
 
 $sendService = new MailSend(
-    ['sender@email.test'', 'Sender Name'],
+    ['sender@email.test', 'Sender Name'],
     [
         ['recipient@email.test','Recipient Name'],
         ['recipient2@email.test','Recipient Name 2']
@@ -34,8 +33,8 @@ $responseBody = $apiClient->getResponseBody();
 ```
 
 ### Consuming an endpoint in the API
-```
-<?php
+```php
+
  $success = $client->consume(
     (new Service('domain/verify', ['domain' => $this_host]))
 );
