@@ -23,9 +23,13 @@ $sendService = new MailSend(
 $sendService->addAddress('cc', 'cc@email.test');
 $sendService->addAddress('bcc', 'bcc@email.test');
 
-$sendService->setAttachments(['/path/to/attachment']);
+$sendService->setAttachments(['/path/to/attachment','/path/to/another_attachment']);
+$sendService->setInlines(['/path/to/inline_attachment','/path/to/another_inline_attachment']);
 
-$apiClient = new ApiClient('api-YOURAPIKEY');
+
+$sendService->setCustomHeaders(['CUSTOM_HEADER_NAME' => 'CUSTOM_HEADER_VALUE']);
+
+$apiClient = new ApiClient('YOURAPIKEY');
 
 $success = $apiClient->consume($sendService);
 
