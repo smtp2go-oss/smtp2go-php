@@ -31,7 +31,7 @@ class SendServiceTest extends TestCase
     {
         $sendService = $this->createTestInstance();
         $sendService->addAddress('to', 'test@test.test');
-        
+
         return $this->assertCount(3, $sendService->getRecipients());
     }
     /**
@@ -155,6 +155,29 @@ class SendServiceTest extends TestCase
         $this->assertArrayHasKey('inlines', $request_data);
 
         $this->assertEquals('image/jpeg', $request_data['inlines'][0]['mimetype']);
+    }
+
+    /**
+     *
+     * @covers \SMTP2GO\Service\Mail\Send
+     * @return void
+     */
+    public function testInvalidAddressTypeArgument()
+    {
+        $sendService = $this->createTestInstance();
+        $this->expectException(InvalidArgumentException::class);
+        $sendService->addAddress('invalid_arg', SMTP2GO_TEST_RECIPIENT_EMAIL, '');
+    }
+    /**
+     *
+     * @covers \SMTP2GO\Service\Mail\Send
+     * @return void
+     */
+    public function testSetSenderWithoutName()
+    {
+        $sendService = $this->createTestInstance();
+        $sendService->setSender(SMTP2GO_TEST_SENDER_EMAIL);
+        $this->assertTrue($sendService->getSender() == SMTP2GO_TEST_SENDER_EMAIL);
     }
 
 }

@@ -2,12 +2,11 @@
 
 namespace SMTP2GO;
 
-use GuzzleHttp\Utils;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Psr7\Request;
-use Psr\Http\Message\RequestInterface;
-use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Utils;
 use SMTP2GO\Service\Concerns\BuildsRequest;
 
 class ApiClient
@@ -96,7 +95,7 @@ class ApiClient
     public function consume(BuildsRequest $service): bool
     {
         $body = [];
-        
+
         $body = $service->buildRequestBody();
 
         $body['api_key'] = $this->apiKey;
@@ -107,6 +106,7 @@ class ApiClient
             $this->lastResponse = $this->httpClient->request(
                 $service->getMethod(),
                 static::API_URL . $service->getEndpoint(),
+                //ensures user options can overwrite these defaults
                 $this->clientOptions + [
                     'json'   => $body,
                     'verify' => $basepath . '/ca-bundle.crt',
@@ -153,7 +153,7 @@ class ApiClient
         if ($this->lastResponse) {
             return $this->lastResponse->getHeaders();
         }
-        return '';
+        return [];
     }
 
     /**
@@ -171,9 +171,9 @@ class ApiClient
      *
      * @param  \GuzzleHttp\Client $client  The GuzzleHttp Client instance
      *
-     * @return  self
+     * @return  ApiClient
      */
-    public function setHttpClient(Client $httpClient)
+    public function setHttpClient(Client $httpClient): ApiClient
     {
         $this->httpClient = $httpClient;
 
@@ -188,5 +188,15 @@ class ApiClient
     public function getLastRequest($asString = true)
     {
         return $asString ? Message::toString($this->lastRequest) : $this->lastRequest;
+    }
+
+    /**
+     * Get custom guzzleHTTP client options used by \SMTP2GO\ApiClient
+     *
+     * @return  array
+     */
+    public function getClientOptions(): array
+    {
+        return $this->clientOptions;
     }
 }

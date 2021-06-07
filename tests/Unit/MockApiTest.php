@@ -18,7 +18,7 @@ class MockApiTest extends TestCase
     public function testSuccessfulServiceApiCall()
     {
         $mock = new MockHandler([
-            new Response(200, [], '{"request_id": "65e68938-c332-11eb-8a00-f23c9216ceac", "data": {"emails": 56, "rejects": 0, "softbounces": 4, "hardbounces": 0, "bounce_percent": "7.14"}}'),
+            new Response(200, ['X-SENT-BY', 'PHPUnit'], '{"request_id": "65e68938-c332-11eb-8a00-f23c9216ceac", "data": {"emails": 56, "rejects": 0, "softbounces": 4, "hardbounces": 0, "bounce_percent": "7.14"}}'),
         ]);
 
         $handlerStack = HandlerStack::create($mock);
@@ -27,8 +27,24 @@ class MockApiTest extends TestCase
         $service = new Service('stats/email_bounces');
         $client  = new ApiClient(SMTP2GO_API_KEY);
         $client->setHttpClient($httpClient);
+
+        $client->setClientOptions(['verify' => false]);
+
+        $this->assertArrayHasKey('verify', $client->getClientOptions());
+
+        $this->assertEquals($httpClient, $client->getClient());
+
+
+
         $result = $client->consume($service);
         $this->assertTrue($result);
+
+        $headers = $client->getResponseHeaders();
+        
+        $this->assertEquals('X-SENT-BY', $headers[0][0]);
+
+        $body = $client->getResponseBody();
+        $this->assertTrue($body->data->emails === 56);
     }
 
     /**
