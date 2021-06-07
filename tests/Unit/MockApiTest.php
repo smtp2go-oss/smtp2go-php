@@ -28,19 +28,17 @@ class MockApiTest extends TestCase
         $client  = new ApiClient(SMTP2GO_API_KEY);
         $client->setHttpClient($httpClient);
 
-        $client->setClientOptions(['verify' => false]);
+        $client->setRequestOptions(['verify' => false]);
 
-        $this->assertArrayHasKey('verify', $client->getClientOptions());
+        $this->assertArrayHasKey('verify', $client->getRequestOptions());
 
         $this->assertEquals($httpClient, $client->getClient());
-
-
 
         $result = $client->consume($service);
         $this->assertTrue($result);
 
         $headers = $client->getResponseHeaders();
-        
+
         $this->assertEquals('X-SENT-BY', $headers[0][0]);
 
         $body = $client->getResponseBody();

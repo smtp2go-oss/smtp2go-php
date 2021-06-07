@@ -48,13 +48,13 @@ class ApiClient
     protected $httpClient;
 
     /**
-     * Array of key value pairs to pass to The GuzzleHttp Client instance
+     * Array of key value pairs to pass to The GuzzleHttp Client request method
      * These will override any default options used by \SMTP2GO\ApiClient
      *
      * @var array
      * @link https://docs.guzzlephp.org/en/stable/request-options.html
      */
-    protected $clientOptions = [];
+    protected $requestOptions = [];
 
     public function __construct($apiKey)
     {
@@ -74,15 +74,15 @@ class ApiClient
     }
 
     /**
-     * Set options for the GuzzleHTTP Client
+     * Set request options for the GuzzleHTTP Client
      *
      * @param array $options
      * @return void
      * @link https://docs.guzzlephp.org/en/stable/request-options.html
      */
-    public function setClientOptions(array $options)
+    public function setrequestOptions(array $options)
     {
-        $this->clientOptions = $options;
+        $this->requestOptions = $options;
     }
 
     /**
@@ -107,7 +107,7 @@ class ApiClient
                 $service->getMethod(),
                 static::API_URL . $service->getEndpoint(),
                 //ensures user options can overwrite these defaults
-                $this->clientOptions + [
+                $this->requestOptions + [
                     'json'   => $body,
                     'verify' => $basepath . '/ca-bundle.crt',
                 ]
@@ -195,8 +195,8 @@ class ApiClient
      *
      * @return  array
      */
-    public function getClientOptions(): array
+    public function getrequestOptions(): array
     {
-        return $this->clientOptions;
+        return $this->requestOptions;
     }
 }
