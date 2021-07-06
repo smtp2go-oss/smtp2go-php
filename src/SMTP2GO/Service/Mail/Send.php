@@ -4,7 +4,7 @@ namespace SMTP2GO\Service\Mail;
 
 use InvalidArgumentException;
 use League\MimeTypeDetection\FinfoMimeTypeDetector;
-use SMTP2GO\Service\Concerns\BuildsRequest;
+use SMTP2GO\Service\Contracts\BuildsRequest;
 
 /**
  * Constructs the payload for sending email through the SMTP2GO Api

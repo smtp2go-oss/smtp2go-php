@@ -1,7 +1,7 @@
 <?php
 namespace SMTP2GO\Service;
 
-use SMTP2GO\Service\Concerns\BuildsRequest;
+use SMTP2GO\Service\Contracts\BuildsRequest;
 
 /**
  * Generic service class which can be used to consume any endpoint in the API

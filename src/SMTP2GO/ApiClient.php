@@ -7,7 +7,7 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Utils;
-use SMTP2GO\Service\Concerns\BuildsRequest;
+use SMTP2GO\Service\Contracts\BuildsRequest;
 
 class ApiClient
 {
@@ -88,7 +88,7 @@ class ApiClient
     /**
      * Consume a service on the SMTP2GO Api
      *
-     * @param \SMTP2GO\Service\Concerns\BuildsRequest $service
+     * @param \SMTP2GO\Service\Contracts\BuildsRequest $service
      * @since 1.0.0
      * @return bool
      */
