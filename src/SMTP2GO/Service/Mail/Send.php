@@ -3,8 +3,9 @@
 namespace SMTP2GO\Service\Mail;
 
 use InvalidArgumentException;
-use League\MimeTypeDetection\FinfoMimeTypeDetector;
-use SMTP2GO\Service\Contracts\BuildsRequest;
+
+use SMTP2GO\Mime\Detector;
+use SMTP2GO\Contracts\BuildsRequest;
 
 /**
  * Constructs the payload for sending email through the SMTP2GO Api
@@ -167,7 +168,7 @@ class Send implements BuildsRequest
 
     public function buildAttachments()
     {
-        $detector = new FinfoMimeTypeDetector();
+        $detector = new Detector();
 
         $attachments = [];
 
@@ -176,7 +177,7 @@ class Send implements BuildsRequest
             $attachments[] = array(
                 'filename' => basename($path),
                 'fileblob' => base64_encode($file_contents),
-                'mimetype' => $detector->detectMimeType($path, $file_contents),
+                'mimetype' => $detector->detectMimeType($path),
             );
         }
 
@@ -185,7 +186,7 @@ class Send implements BuildsRequest
 
     public function buildInlines()
     {
-        $detector = new FinfoMimeTypeDetector();
+        $detector = new Detector();
 
         $inlines = [];
 
@@ -195,7 +196,7 @@ class Send implements BuildsRequest
             $inlines[] = array(
                 'filename' => basename($path),
                 'fileblob' => base64_encode(file_get_contents($path)),
-                'mimetype' => $detector->detectMimeType($path, $file_contents),
+                'mimetype' => $detector->detectMimeType($path),
             );
         }
         return $inlines;

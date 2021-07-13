@@ -17,8 +17,9 @@ class MockApiTest extends TestCase
      */
     public function testSuccessfulServiceApiCall()
     {
+        $expectedResponse = '{"request_id": "65e68938-c332-11eb-8a00-f23c9216ceac", "data": {"emails": 56, "rejects": 0, "softbounces": 4, "hardbounces": 0, "bounce_percent": "7.14"}}';
         $mock = new MockHandler([
-            new Response(200, ['X-SENT-BY', 'PHPUnit'], '{"request_id": "65e68938-c332-11eb-8a00-f23c9216ceac", "data": {"emails": 56, "rejects": 0, "softbounces": 4, "hardbounces": 0, "bounce_percent": "7.14"}}'),
+            new Response(200, ['X-SENT-BY', 'PHPUnit'], $expectedResponse),
         ]);
 
         $handlerStack = HandlerStack::create($mock);
@@ -43,6 +44,11 @@ class MockApiTest extends TestCase
 
         $body = $client->getResponseBody();
         $this->assertTrue($body->data->emails === 56);
+
+        $rawBody = $client->getResponseBody(false);
+        $this->assertIsString($rawBody);
+        $this->assertEquals($rawBody, $expectedResponse);
+        
     }
 
     /**

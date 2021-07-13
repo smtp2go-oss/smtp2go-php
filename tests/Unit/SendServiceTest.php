@@ -123,6 +123,8 @@ class SendServiceTest extends TestCase
     /**
      *
      * @covers \SMTP2GO\Service\Mail\Send
+     * @covers \SMTP2GO\Mime\Detector
+
      * @return void
      */
 
@@ -142,6 +144,8 @@ class SendServiceTest extends TestCase
     /**
      *
      * @covers \SMTP2GO\Service\Mail\Send
+     * @covers \SMTP2GO\Mime\Detector
+     * 
      * @return void
      */
     public function testAddInline()
@@ -179,5 +183,4 @@ class SendServiceTest extends TestCase
         $sendService->setSender(SMTP2GO_TEST_SENDER_EMAIL);
         $this->assertTrue($sendService->getSender() == SMTP2GO_TEST_SENDER_EMAIL);
     }
-
 }
