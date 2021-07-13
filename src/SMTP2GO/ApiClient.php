@@ -136,7 +136,7 @@ class ApiClient
             return '';
         }
         if (!$asJson) {
-            return $this->lastResponse;
+            return $this->lastResponse->getBody();
         }
         if ($this->lastResponse) {
             return Utils::jsonDecode((string) $this->lastResponse->getBody());
