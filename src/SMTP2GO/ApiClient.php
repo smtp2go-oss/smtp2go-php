@@ -7,7 +7,7 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Utils;
-use SMTP2GO\Service\Contracts\BuildsRequest;
+use SMTP2GO\Contracts\BuildsRequest;
 
 class ApiClient
 {
@@ -88,7 +88,7 @@ class ApiClient
     /**
      * Consume a service on the SMTP2GO Api
      *
-     * @param \SMTP2GO\Service\Contracts\BuildsRequest $service
+     * @param \SMTP2GO\Contracts\BuildsRequest $service
      * @since 1.0.0
      * @return bool
      */
@@ -136,7 +136,7 @@ class ApiClient
             return '';
         }
         if (!$asJson) {
-            return $this->lastResponse->getBody();
+            return (string) $this->lastResponse->getBody();
         }
         if ($this->lastResponse) {
             return Utils::jsonDecode((string) $this->lastResponse->getBody());
