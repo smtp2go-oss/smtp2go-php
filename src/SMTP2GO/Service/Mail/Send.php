@@ -12,12 +12,7 @@ use SMTP2GO\Contracts\BuildsRequest;
  */
 class Send implements BuildsRequest
 {
-    /**
-     * Custom headers
-     *
-     * @var array
-     */
-    protected $custom_headers = [];
+
 
     /**
      * Sender RFC-822 formatted email "John Smith <john@example.com>"
@@ -69,11 +64,11 @@ class Send implements BuildsRequest
     protected $text_body;
 
     /**
-     * Custom email headers
+     * Email headers
      *
      * @var array
      */
-    protected $headers;
+    protected $custom_headers;
 
     /**
      * Attachments
@@ -137,7 +132,7 @@ class Send implements BuildsRequest
         $body['html_body'] = $this->getHtmlBody();
         $body['text_body'] = $this->getTextBody();
 
-        $body['custom_headers'] = $this->buildCustomHeaders();
+        $body['custom_headers'] = $this->getCustomHeaders();
 
         $body['subject']     = $this->getSubject();
         $body['attachments'] = $this->buildAttachments();
@@ -146,27 +141,24 @@ class Send implements BuildsRequest
         return array_filter($body);
     }
 
-    public function buildCustomHeaders()
+
+
+    /**
+     * @deprecated 1.0.1 beta
+     *
+     * @return array
+     */
+    public function buildCustomHeaders(): array
     {
-        $raw_custom_headers = $this->getCustomHeaders();
-
-        $custom_headers = [];
-
-        if (!empty($raw_custom_headers['header'])) {
-            foreach ($raw_custom_headers['header'] as $index => $header) {
-                if (!empty($header) && !empty($raw_custom_headers['value'][$index])) {
-                    $custom_headers[] = array(
-                        'header' => $header,
-                        'value'  => $raw_custom_headers['value'][$index],
-                    );
-                }
-            }
-        }
-
-        return $custom_headers;
+        return $this->getCustomHeaders();
     }
 
-    public function buildAttachments()
+    /**
+     * Build Attachemnt Structure
+     *
+     * @return array
+     */
+    public function buildAttachments(): array
     {
         $detector = new Detector();
 
@@ -184,7 +176,12 @@ class Send implements BuildsRequest
         return $attachments;
     }
 
-    public function buildInlines()
+    /**
+     * Build inline attachment structure
+     *
+     * @return array
+     */
+    public function buildInlines(): array
     {
         $detector = new Detector();
 
@@ -223,18 +220,30 @@ class Send implements BuildsRequest
     }
 
     /**
-     * Set custom headers - expected format is the unserialized array
-     * from the stored smtp2go_custom_headers option
+     * Set custom headers - This clears any previously set headers
      *
-     * @param  array  $custom_headers  Custom headers
+     * @param  array  $custom_headers  Custom headers in the format [['header' => 'headerName', 'value' => 'headerValue']]
      * @return Send
      */
-    public function setCustomHeaders($custom_headers): Send
+    public function setCustomHeaders($headers): Send
     {
-        if (is_array($custom_headers)) {
-            $this->custom_headers = $custom_headers;
+        if (is_array($headers)) {
+            $this->custom_headers = $headers;
         }
 
+        return $this;
+    }
+
+    /**
+     * Add a custom header
+     *
+     * @param string $headerName
+     * @param string $headerValue
+     * @return void
+     */
+    public function addCustomHeader($headerName, $headerValue): Send
+    {
+        $this->custom_headers[] = ['header' => $headerName, 'value' => $headerValue];
         return $this;
     }
 
@@ -297,7 +306,7 @@ class Send implements BuildsRequest
      *
      * @return  string
      */
-    public function getHtmlBody()
+    public function getHtmlBody(): string
     {
         return $this->html_body;
     }
@@ -321,7 +330,7 @@ class Send implements BuildsRequest
      *
      * @return  array
      */
-    public function getRecipients()
+    public function getRecipients(): array
     {
         return $this->to;
     }
@@ -397,9 +406,9 @@ class Send implements BuildsRequest
      *
      * @param  array  $bcc  The BCC'd recipients may contain multiple arrays with 1 or 2 values with email address and optional name
      *
-     * @return  self
+     * @return  Send
      */
-    public function setBcc(array $bcc)
+    public function setBcc(array $bcc): Send
     {
         $this->bcc = [];
         $this->addAddresses('bcc', $bcc);
@@ -462,7 +471,7 @@ class Send implements BuildsRequest
      *
      * @return array
      */
-    public function getInlines()
+    public function getInlines(): array
     {
         return $this->inlines;
     }
