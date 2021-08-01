@@ -16,9 +16,10 @@ class SendServiceTest extends TestCase
             SMTP2GO_TEST_SUBJECT,
             'Test Message'
         );
-        $raw_headers = unserialize('a:2:{s:6:"header";a:1:{i:0;s:13:"X-Test-Header";}s:5:"value";a:1:{i:0;s:7:"Testing";}}');
 
-        $sendService->setCustomHeaders($raw_headers);
+        $sendService->addCustomHeader('X-Test-Header','Testing');
+        $sendService->addCustomHeader('Reply-To','reply-to@example.test');
+
 
         return $sendService;
     }
@@ -91,7 +92,7 @@ class SendServiceTest extends TestCase
      */
     public function testbuildRequestBodyWithHTMLMessage()
     {
-        $expected_json_body_string = '{"to":["' . SMTP2GO_TEST_RECIPIENT_NAME . ' <' . SMTP2GO_TEST_RECIPIENT_EMAIL . '>"],"sender":"\"' . SMTP2GO_TEST_SENDER_NAME . '\" <' . SMTP2GO_TEST_SENDER_EMAIL . '>","html_body":"<html><body><h1>Heading<\/h1><div>This is the message<\/div><\/body><\/html>","custom_headers":[{"header":"X-Test-Header","value":"Testing"}],"subject":"' . SMTP2GO_TEST_SUBJECT . '"}';
+        $expected_json_body_string = '{"to":["' . SMTP2GO_TEST_RECIPIENT_NAME . ' <' . SMTP2GO_TEST_RECIPIENT_EMAIL . '>"],"sender":"\"' . SMTP2GO_TEST_SENDER_NAME . '\" <' . SMTP2GO_TEST_SENDER_EMAIL . '>","html_body":"<html><body><h1>Heading<\/h1><div>This is the message<\/div><\/body><\/html>","custom_headers":[{"header":"X-Test-Header","value":"Testing"},{"header":"Reply-To","value":"reply-to@example.test"}],"subject":"' . SMTP2GO_TEST_SUBJECT . '"}';
         $sendService               = $this->createTestInstance();
 
         $sendService->setSubject(SMTP2GO_TEST_SUBJECT);
@@ -109,7 +110,7 @@ class SendServiceTest extends TestCase
      */
     public function testbuildRequestBodyWithPlainTextMessage()
     {
-        $expected_json_body_string = '{"to":["' . SMTP2GO_TEST_RECIPIENT_NAME . ' <' . SMTP2GO_TEST_RECIPIENT_EMAIL . '>"],"sender":"\"' . SMTP2GO_TEST_SENDER_NAME . '\" <' . SMTP2GO_TEST_SENDER_EMAIL . '>","text_body":"A Plain Message","custom_headers":[{"header":"X-Test-Header","value":"Testing"}],"subject":"' . SMTP2GO_TEST_SUBJECT . '"}';
+        $expected_json_body_string = '{"to":["' . SMTP2GO_TEST_RECIPIENT_NAME . ' <' . SMTP2GO_TEST_RECIPIENT_EMAIL . '>"],"sender":"\"' . SMTP2GO_TEST_SENDER_NAME . '\" <' . SMTP2GO_TEST_SENDER_EMAIL . '>","text_body":"A Plain Message","custom_headers":[{"header":"X-Test-Header","value":"Testing"},{"header":"Reply-To","value":"reply-to@example.test"}],"subject":"' . SMTP2GO_TEST_SUBJECT . '"}';
         $sendService               = $this->createTestInstance();
 
         $sendService->setSubject(SMTP2GO_TEST_SUBJECT);
