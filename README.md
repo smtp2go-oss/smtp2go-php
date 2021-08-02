@@ -25,9 +25,9 @@ $sendService->addAddress('bcc', 'bcc@email.test');
 $sendService->setAttachments(['/path/to/attachment', '/path/to/another_attachment']);
 $sendService->setInlines(['/path/to/inline_attachment', '/path/to/another_inline_attachment']);
 
-$sendService->setCustomHeaders(['CUSTOM_HEADER_NAME' => 'CUSTOM_HEADER_VALUE']);
+$sendService->addCustomHeader(['REPLY-TO' => 'replyto@email.test']);
 
-$apiClient = new ApiClient('YOURAPIKEY');
+$apiClient = new ApiClient('api-YOURAPIKEY');
 
 $success = $apiClient->consume($sendService);
 
