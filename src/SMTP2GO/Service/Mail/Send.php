@@ -68,7 +68,7 @@ class Send implements BuildsRequest
      *
      * @var array
      */
-    protected $custom_headers;
+    protected $custom_headers = [];
 
     /**
      * Attachments
