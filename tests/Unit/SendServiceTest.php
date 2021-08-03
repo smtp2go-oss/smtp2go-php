@@ -133,7 +133,7 @@ class SendServiceTest extends TestCase
     {
         $sendService = $this->createTestInstance();
 
-        $sendService->setAttachments(dirname(__FILE__, 2) . '/Attachments/cat.jpg');
+        $sendService->setAttachments([dirname(__FILE__, 2) . '/Attachments/cat.jpg']);
 
         $request_data = $sendService->buildRequestBody();
 
@@ -153,7 +153,7 @@ class SendServiceTest extends TestCase
     {
         $sendService = $this->createTestInstance();
 
-        $sendService->setInlines(dirname(__FILE__, 2) . '/Attachments/cat.jpg');
+        $sendService->setInlines([dirname(__FILE__, 2) . '/Attachments/cat.jpg']);
 
         $request_data = $sendService->buildRequestBody();
 
