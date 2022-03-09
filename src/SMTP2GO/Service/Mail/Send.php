@@ -2,10 +2,18 @@
 
 namespace SMTP2GO\Service\Mail;
 
-use InvalidArgumentException;
 
 use SMTP2GO\Mime\Detector;
+
+use InvalidArgumentException;
+use SMTP2GO\Types\Mail\Address;
+use SMTP2GO\Types\Mail\Attachment;
 use SMTP2GO\Contracts\BuildsRequest;
+use SMTP2GO\Collections\Mail\CustomHeaderCollection;
+use SMTP2GO\Types\Mail\InlineAttachment;
+use SMTP2GO\Collections\Mail\AddressCollection;
+use SMTP2GO\Collections\Mail\AttachmentCollection;
+use SMTP2GO\Types\Mail\CustomHeader;
 
 /**
  * Constructs the payload for sending email through the SMTP2GO Api
@@ -63,26 +71,38 @@ class Send implements BuildsRequest
      */
     protected $text_body;
 
-    /**
-     * Email headers
-     *
-     * @var array
-     */
-    protected $custom_headers = [];
 
     /**
-     * Attachments
-     *
-     * @var array
+     * @var string
      */
-    protected $attachments = [];
+
+    protected $template_id;
 
     /**
-     * Inline attachments
-     *
      * @var array
      */
-    protected $inlines = [];
+    protected $template_data;
+
+    /**
+     * An optional set of custom headers to be applied to the email.
+     *
+     * @var CustomHeaderCollection
+     */
+    protected $custom_headers;
+
+    /**
+     * An array of attachment objects to be attached to the email.
+     *
+     * @var AttachmentCollection
+     */
+    protected $attachments;
+
+    /**
+     * An array of images to be inlined into the email.
+     *
+     * @var AttachmentCollection
+     */
+    protected $inlines;
 
     /**
      * endpoint to send to
@@ -99,18 +119,22 @@ class Send implements BuildsRequest
     /**
      * ```$sendService = new Send(['example@email.com','John Doe'], [['email1@example.test','Jane Doe']], 'My Subject', 'My Message');```
      *
-     * @param array $sender may contain 1 or 2 values with email address and name
-     * @param array $recipients the array should contain multiple arrays with 1 or 2 values with email address and optional name
+     * @param Address $sender may contain 1 or 2 values with email address and name
+     * @param AddressCollection $recipients the array should contain multiple arrays with 1 or 2 values with email address and optional name
      * @param string $subject the email subject line
      * @param string $message the body of the email either HTML or Plain Text
      *
      */
-    public function __construct(array $sender, array $recipients, string $subject, string $message)
+    public function __construct(Address $sender, AddressCollection $recipients, string $subject, string $message)
     {
-        $this->setSender(...$sender)
+        $this->setSender($sender->getEmail(), $sender->getName())
             ->setRecipients($recipients)
             ->setSubject($subject)
             ->setBody($message);
+
+        $this->attachments = new AttachmentCollection;
+        $this->inlines = new AttachmentCollection;
+        $this->custom_headers = new CustomHeaderCollection;
     }
 
     /**
@@ -132,44 +156,45 @@ class Send implements BuildsRequest
         $body['html_body'] = $this->getHtmlBody();
         $body['text_body'] = $this->getTextBody();
 
-        $body['custom_headers'] = $this->getCustomHeaders();
+        $body['custom_headers'] = $this->buildCustomHeaders();
 
         $body['subject']     = $this->getSubject();
         $body['attachments'] = $this->buildAttachments();
         $body['inlines']     = $this->buildInlines();
+
+        $body['template_id'] = $this->template_id;
+        $body['template_data'] = $this->template_data;
 
         return array_filter($body);
     }
 
 
 
-    /**
-     * @deprecated 1.0.1 beta
-     *
-     * @return array
-     */
-    public function buildCustomHeaders(): array
+    public function buildCustomHeaders()
     {
-        return $this->getCustomHeaders();
+        $headers = [];
+        foreach ($this->getCustomHeaders() as $customHeader) {
+            /** @var \SMTP2GO\Types\Mail\CustomHeader $customHeader */
+            $headers[] = ['header' => $customHeader->getheader(), 'value' => $customHeader->getvalue()];
+        }
+        return $headers;
     }
 
     /**
-     * Build Attachemnt Structure
+     * Build Attachment Structure
      *
      * @return array
      */
     public function buildAttachments(): array
     {
-        $detector = new Detector();
+        if (empty($this->attachments)) {
+            return [];
+        }
 
         $attachments = [];
 
-        foreach ($this->attachments as $path) {
-            $attachments[] = array(
-                'filename' => basename($path),
-                'fileblob' => base64_encode(file_get_contents($path)),
-                'mimetype' => $detector->detectMimeType($path),
-            );
+        foreach ($this->attachments as $attachment) {
+            $attachments[] = $attachment->toArray();
         }
 
         return $attachments;
@@ -182,16 +207,14 @@ class Send implements BuildsRequest
      */
     public function buildInlines(): array
     {
-        $detector = new Detector();
+        if (empty($this->inlines)) {
+            return [];
+        }
 
         $inlines = [];
 
-        foreach ($this->inlines as $path) {
-            $inlines[] = array(
-                'filename' => basename($path),
-                'fileblob' => base64_encode(file_get_contents($path)),
-                'mimetype' => $detector->detectMimeType($path),
-            );
+        foreach ($this->inlines as $inlineAttachment) {
+            $inlines[] = $inlineAttachment->toArray();
         }
         return $inlines;
     }
@@ -219,14 +242,13 @@ class Send implements BuildsRequest
     /**
      * Set custom headers - This clears any previously set headers
      *
-     * @param  array  $custom_headers  Custom headers in the format [['header' => 'headerName', 'value' => 'headerValue']]
+     * @param  CustomHeaderCollection  $custom_headers  Custom headers in the format [['header' => 'headerName', 'value' => 'headerValue']]
      * @return Send
      */
-    public function setCustomHeaders($headers): Send
+    public function setCustomHeaders(CustomHeaderCollection $headers): Send
     {
-        if (is_array($headers)) {
-            $this->custom_headers = $headers;
-        }
+
+        $this->custom_headers = $headers;
 
         return $this;
     }
@@ -238,9 +260,9 @@ class Send implements BuildsRequest
      * @param string $headerValue
      * @return void
      */
-    public function addCustomHeader($headerName, $headerValue): Send
+    public function addCustomHeader(CustomHeader $header): Send
     {
-        $this->custom_headers[] = ['header' => $headerName, 'value' => $headerValue];
+        $this->custom_headers->add($header);
         return $this;
     }
 
@@ -335,11 +357,11 @@ class Send implements BuildsRequest
     /**
      * Set the email recipients - this clears any previously added recipients
      *
-     * @param  array  $recipients the array should contain multiple arrays with 1 or 2 values with email address and optional name
+     * @param  AddressCollection  $recipients the array should contain multiple arrays with 1 or 2 values with email address and optional name
      *
      * @return  Send
      */
-    public function setRecipients(array $recipients): Send
+    public function setRecipients(AddressCollection $recipients): Send
     {
         $this->to = [];
 
@@ -355,12 +377,11 @@ class Send implements BuildsRequest
      * @param array $addresses the array should contain multiple arrays with 1 or 2 values with email address and optional name
      * @return Send
      */
-    public function addAddresses(string $addressType, array $addresses): Send
+    public function addAddresses(string $addressType, AddressCollection $addresses): Send
     {
         foreach ($addresses as $addressesItem) {
-            if (is_iterable($addressesItem)) {
-                $this->addAddress($addressType, ...$addressesItem);
-            }
+
+            $this->addAddress($addressType, $addressesItem);
         }
         return $this;
     }
@@ -374,11 +395,14 @@ class Send implements BuildsRequest
      * @return Send
      */
 
-    public function addAddress(string $addressType, $email, $name = ''): Send
+    public function addAddress(string $addressType, Address $address): Send
     {
         if (!in_array($addressType, ['to', 'cc', 'bcc'])) {
             throw new InvalidArgumentException('$addressType must be one of either "to", "cc" or "bcc"');
         }
+        $name = $address->getName();
+        $email = $address->getEmail();
+
         if (!empty($name)) {
             $email                = str_replace(['<', '>'], '', $email);
             $this->$addressType[] = "$name <$email>";
@@ -401,11 +425,11 @@ class Send implements BuildsRequest
     /**
      * Set the BCC'd recipients. This clears any previously added BCC addresses
      *
-     * @param  array  $bcc  The BCC'd recipients may contain multiple arrays with 1 or 2 values with email address and optional name
+     * @param  AddressCollection  $bcc  The BCC'd recipients may contain multiple arrays with 1 or 2 values with email address and optional name
      *
      * @return  Send
      */
-    public function setBcc(array $bcc): Send
+    public function setBcc(AddressCollection $bcc): Send
     {
         $this->bcc = [];
         $this->addAddresses('bcc', $bcc);
@@ -416,7 +440,7 @@ class Send implements BuildsRequest
     /**
      * Get the CC'd recipients. This clears any previously added CC addresses
      *
-     * @return  array
+     * @return  AddressCollection
      */
     public function getCc()
     {
@@ -426,11 +450,11 @@ class Send implements BuildsRequest
     /**
      * Set the CC'd recipients. This clears any previously added CC addresses.
      *
-     * @param  array  $cc  The CC'd recipients may contain multiple arrays with 1 or 2 values with email address and optional name
+     * @param  AddressCollection  $cc  The CC'd recipients may contain multiple arrays with 1 or 2 values with email address and optional name
      *
      * @return  Send
      */
-    public function setCc(array $cc): Send
+    public function setCc(AddressCollection $cc): Send
     {
         $this->cc = [];
 
@@ -442,21 +466,31 @@ class Send implements BuildsRequest
     /**
      * Get attachments
      *
-     * @return  array
+     * @return  AttachmentCollection
      */
-    public function getAttachments(): array
+    public function getAttachments(): AttachmentCollection
     {
         return $this->attachments;
+    }
+
+    public function addAttachment(Attachment $attachment): Send
+    {
+        if (is_a($attachment, InlineAttachment::class)) {
+            $this->inlines[] = $attachment;
+        } else {
+            $this->attachments[] = $attachment;
+        }
+        return $this;
     }
 
     /**
      * Set attachments as an array of filepaths e.g ```['/path/to/file1.txt','/path/to/file2.jpg']```
      *
-     * @param  array  $attachments
+     * @param  AttachmentCollection  $attachments
      *
      * @return  Send
      */
-    public function setAttachments(array $attachments): Send
+    public function setAttachments(AttachmentCollection $attachments): Send
     {
         $this->attachments = $attachments;
 
@@ -466,9 +500,9 @@ class Send implements BuildsRequest
     /**
      * Get inline attachments
      *
-     * @return array
+     * @return AttachmentCollection
      */
-    public function getInlines(): array
+    public function getInlines(): AttachmentCollection
     {
         return $this->inlines;
     }
@@ -476,11 +510,11 @@ class Send implements BuildsRequest
     /**
      * Set inline attachments as an array of filepaths e.g ```['/path/to/file1.txt','/path/to/file2.jpg']```
      *
-     * @param  array  $inlines  Inline attachments
+     * @param  AttachmentCollection  $inlines  Inline attachments
      *
      * @return  Send
      */
-    public function setInlines(array $inlines): Send
+    public function setInlines(AttachmentCollection $inlines): Send
     {
         $this->inlines = $inlines;
 
@@ -534,10 +568,36 @@ class Send implements BuildsRequest
     /**
      * Get custom headers
      *
-     * @return  array
+     * @return  CustomHeaderCollection
      */
-    public function getCustomHeaders(): array
+    public function getCustomHeaders(): CustomHeaderCollection
     {
         return $this->custom_headers;
+    }
+
+    /**
+     * Set the value of template_id
+     *
+     * @return  self
+     */
+    public function setTemplateId($template_id)
+    {
+        $this->template_id = $template_id;
+
+        return $this;
+    }
+
+    /**
+     * Set the value of template_data
+     *
+     * @param  array  $template_data
+     *
+     * @return  self
+     */
+    public function setTemplateData(array $template_data)
+    {
+        $this->template_data = json_encode($template_data);
+
+        return $this;
     }
 }

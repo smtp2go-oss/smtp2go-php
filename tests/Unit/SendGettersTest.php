@@ -1,33 +1,49 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
 use SMTP2GO\Service\Mail\Send;
+use PHPUnit\Framework\TestCase;
+use SMTP2GO\Types\Mail\Address;
+use SMTP2GO\Collections\Mail\AddressCollection;
+use SMTP2GO\Collections\Mail\AttachmentCollection;
+use SMTP2GO\Collections\Mail\CustomHeaderCollection;
 
 /**
  * @covers \SMTP2GO\Service\Mail\Send
+* @covers \SMTP2GO\Collections\Collection::current
+* @covers \SMTP2GO\Collections\Collection::next
+* @covers \SMTP2GO\Collections\Collection::rewind
+* @covers \SMTP2GO\Collections\Collection::valid
+* @covers \SMTP2GO\Collections\Mail\AddressCollection::__construct
+* @covers \SMTP2GO\Collections\Mail\AddressCollection::add
+* @covers \SMTP2GO\Collections\Mail\AttachmentCollection::__construct
+* @covers \SMTP2GO\Collections\Mail\CustomHeaderCollection::__construct
+* @covers \SMTP2GO\Types\Mail\Address::__construct
+* @covers \SMTP2GO\Types\Mail\Address::getEmail
+* @covers \SMTP2GO\Types\Mail\Address::getName
  */
 class SendGettersTest extends TestCase
 {
 
     private $sender;
+
     public function setUp(): void
     {
-        $this->sender = new Send(['test@test.test'], ['recipient@test.test'], 'Testing!', 'Test Message');;
+        $this->sender = new Send(new Address('sender@test.test'), new AddressCollection([new Address('recipient@test.test')]), 'Testing!', 'Test Message');
     }
 
     public function testGetAttachmentsReturnsArray()
     {
-        $this->assertIsArray($this->sender->getAttachments());
+        $this->assertInstanceOf(AttachmentCollection::class, $this->sender->getAttachments());
     }
 
     public function testGetCustomHeadersReturnsArray()
     {
-        $this->assertIsArray($this->sender->getCustomHeaders());
+        $this->assertInstanceOf(CustomHeaderCollection::class, $this->sender->getCustomHeaders());
     }
 
     public function testGetInlinesReturnsArray()
     {
-        $this->assertIsArray($this->sender->getInlines());
+        $this->assertInstanceOf(AttachmentCollection::class, $this->sender->getInlines());
     }
 
     public function testGetRecipientsReturnsArray()
