@@ -184,7 +184,7 @@ class SendServiceTest extends TestCase
     public function testSetSenderWithoutName()
     {
         $sendService = $this->createTestInstance();
-        $sendService->setSender(SMTP2GO_TEST_SENDER_EMAIL);
+        $sendService->setSender(new Address(SMTP2GO_TEST_SENDER_EMAIL));
         $this->assertTrue($sendService->getSender() == SMTP2GO_TEST_SENDER_EMAIL);
     }
 }

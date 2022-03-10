@@ -5,9 +5,9 @@ namespace SMTP2GO\Types\Mail;
 class Address
 {
 
-    protected string $email;
+    protected $email;
 
-    protected string $name = '';
+    protected $name = '';
 
     public function __construct(string $email, string $name = '')
     {
@@ -18,7 +18,7 @@ class Address
 
     /**
      * Get the value of name
-     */ 
+     */
     public function getName()
     {
         return $this->name;
@@ -28,7 +28,7 @@ class Address
      * Set the value of name
      *
      * @return  self
-     */ 
+     */
     public function setName($name)
     {
         $this->name = $name;
@@ -38,7 +38,7 @@ class Address
 
     /**
      * Get the value of email
-     */ 
+     */
     public function getEmail()
     {
         return $this->email;
@@ -48,7 +48,7 @@ class Address
      * Set the value of email
      *
      * @return  self
-     */ 
+     */
     public function setEmail($email)
     {
         $this->email = $email;

@@ -11,31 +11,37 @@ class Attachment
      * The patch to the the attachment
      * @var string
      */
-    protected string $filepath;
+    protected  $filepath;
 
     /**
      * The name to give the attached file
      * @var string
      */
-    protected string $filename;
+    protected  $filename;
 
     /**
      * The raw data of the attachment, not base64 encoded
      * @var string
      */
-    protected string $fileblob;
+    protected  $fileblob;
 
     /**
      * The mimetype of the attachment
      * @var string
      */
-    protected string $mimetype;
+    protected  $mimetype;
 
-    public function __construct(string $filepath)
+    /**
+     * 
+     * @param string $filepath 
+     * @param string $filename - by default the name will be determined from the $filepath
+     * @return void 
+     */
+    public function __construct(string $filepath, string $filename = '')
     {
         $this->filepath = $filepath;
         $this->fileblob = base64_encode(file_get_contents($filepath));
-        $this->filename = basename($this->filepath);
+        $this->filename = $filename != '' ? $filename : basename($this->filepath);
 
         $detector = new Detector;
         $this->mimetype = $detector->detectMimeType($this->filepath);

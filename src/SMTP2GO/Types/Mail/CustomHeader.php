@@ -4,10 +4,16 @@ namespace SMTP2GO\Types\Mail;
 
 class CustomHeader
 {
-    protected string $header;
+    protected $header;
 
-    protected string $value = '';
+    protected $value = '';
 
+    /**
+     * 
+     * @param string $header 
+     * @param string $value 
+     * @return void 
+     */
     public function __construct(string $header, string $value = '')
     {
         $this->header = $header;

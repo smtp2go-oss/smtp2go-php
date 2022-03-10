@@ -22,7 +22,7 @@ class CustomHeaderCollection extends Collection
         if (is_a($header, CustomHeader::class)) {
             $this->items[] = $header;
         } else {
-            throw new \InvalidArgumentException('This collection expects objects of type ' . CustomHeader::class, ' but recieved ' . get_class($attachment));
+            throw new \InvalidArgumentException('This collection expects objects of type ' . CustomHeader::class, ' but recieved ' . get_class($header));
         }
         return $this;
     }
