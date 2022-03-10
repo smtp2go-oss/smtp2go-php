@@ -116,18 +116,17 @@ class Send implements BuildsRequest
      */
     private const HTTP_METHOD = 'POST';
 
-    /**
-     * ```$sendService = new Send(['example@email.com','John Doe'], [['email1@example.test','Jane Doe']], 'My Subject', 'My Message');```
+    /**     
      *
      * @param Address $sender may contain 1 or 2 values with email address and name
-     * @param AddressCollection $recipients the array should contain multiple arrays with 1 or 2 values with email address and optional name
+     * @param AddressCollection $recipients a collection of Address Objects
      * @param string $subject the email subject line
      * @param string $message the body of the email either HTML or Plain Text
      *
      */
     public function __construct(Address $sender, AddressCollection $recipients, string $subject, string $message)
     {
-        $this->setSender($sender->getEmail(), $sender->getName())
+        $this->setSender($sender)
             ->setRecipients($recipients)
             ->setSubject($subject)
             ->setBody($message);
@@ -242,7 +241,7 @@ class Send implements BuildsRequest
     /**
      * Set custom headers - This clears any previously set headers
      *
-     * @param  CustomHeaderCollection  $custom_headers  Custom headers in the format [['header' => 'headerName', 'value' => 'headerValue']]
+     * @param  CustomHeaderCollection $headers
      * @return Send
      */
     public function setCustomHeaders(CustomHeaderCollection $headers): Send
@@ -279,13 +278,14 @@ class Send implements BuildsRequest
     /**
      * Set sender as RFC-822 formatted email "John Smith <john@example.com>"
      *
-     * @param string $email
-     * @param string $name
+     * @param Address $address
      *
      * @return Send
      */
-    public function setSender($email, $name = ''): Send
+    public function setSender(Address $address): Send
     {
+        $name = $address->getName();
+        $email = $address->getEmail();
         if (!empty($name)) {
             $email        = str_replace(['<', '>'], '', $email);
             $this->sender = "\"$name\" <$email>";

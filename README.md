@@ -7,25 +7,29 @@ This library provides a simple way to send email via the SMTP2GO API and also ac
 ### Sending an Email
 ```php
 use SMTP2GO\ApiClient;
-use SMTP2GO\Service\Mail\Send as MailSend;
+use SMTP2GO\Service\Mail\Send;
+use SMTP2GO\Types\Mail\Address;
+use SMTP2GO\Types\Mail\InlineAttachment;
+use SMTP2GO\Collections\Mail\AddressCollection;
 
 $sendService = new MailSend(
-    ['sender@email.test', 'Sender Name'],
-    [
-        ['recipient@email.test', 'Recipient Name'],
-        ['recipient2@email.test', 'Recipient Name 2'],
-    ],
+    new Address('sender@email.test', 'Sender Name'),
+    new AddressCollection([
+        new Address('recipient@email.test', 'Recipient Name'),
+        new Address('recipient2@email.test', 'Recipient Name 2'),
+    ),
     'Test Email',
     '<h1>Hello World</h1>'
 );
 
-$sendService->addAddress('cc', 'cc@email.test');
-$sendService->addAddress('bcc', 'bcc@email.test');
+$sendService->addAddress('cc', new Address('cc@email.test'));
+$sendService->addAddress('bcc', new Address('bcc@email.test'));
 
-$sendService->setAttachments(['/path/to/attachment', '/path/to/another_attachment']);
-$sendService->setInlines(['/path/to/inline_attachment', '/path/to/another_inline_attachment']);
+$sendService->setAttachments(new AttachmentCollection([ new Attachment('/path/to/attachment'), new Attachment('/path/to/another_attachment')]);
 
-$sendService->addCustomHeader('Reply-To', 'replyto@email.test');
+
+
+$sendService->addCustomHeader(new CustomHeader('Reply-To', 'replyto@email.test'));
 
 $apiClient = new ApiClient('api-YOURAPIKEY');
 

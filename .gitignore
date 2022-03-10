@@ -1,3 +1,4 @@
 .phpunit.cache
 phpunit-dev.xml
 vendor
+Examples
