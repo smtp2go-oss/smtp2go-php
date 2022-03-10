@@ -9,7 +9,6 @@ This library provides a simple way to send email via the SMTP2GO API and also ac
 use SMTP2GO\ApiClient;
 use SMTP2GO\Service\Mail\Send;
 use SMTP2GO\Types\Mail\Address;
-use SMTP2GO\Types\Mail\InlineAttachment;
 use SMTP2GO\Collections\Mail\AddressCollection;
 
 $sendService = new MailSend(
@@ -17,7 +16,7 @@ $sendService = new MailSend(
     new AddressCollection([
         new Address('recipient@email.test', 'Recipient Name'),
         new Address('recipient2@email.test', 'Recipient Name 2'),
-    ),
+    ]),
     'Test Email',
     '<h1>Hello World</h1>'
 );
