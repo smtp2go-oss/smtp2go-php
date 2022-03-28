@@ -2,14 +2,32 @@
 
 This library provides a simple way to send email via the SMTP2GO API and also access other endpoints in the API in a standard way.
 
+## Installation
+
+```composer require smtp2go-oss/smtp2go-php```
 ## Examples
 
 ### Sending an Email
 ```php
 use SMTP2GO\ApiClient;
-use SMTP2GO\Service\Mail\Send;
+use SMTP2GO\Service\Mail\Send as MailSend;
 use SMTP2GO\Types\Mail\Address;
 use SMTP2GO\Collections\Mail\AddressCollection;
+
+$message = <<<EOF
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+<h1>This should contain an image of a cat. It should appear as an inline attachment.</h1>
+<img src="cid:a-cat-picture" alt="a cat"/>
+</body>
+</html>
+EOF;
 
 $sendService = new MailSend(
     new Address('sender@email.test', 'Sender Name'),
@@ -18,7 +36,7 @@ $sendService = new MailSend(
         new Address('recipient2@email.test', 'Recipient Name 2'),
     ]),
     'Test Email',
-    '<h1>Hello World</h1>'
+   $message,
 );
 
 $sendService->addAddress('cc', new Address('cc@email.test'));
@@ -26,7 +44,9 @@ $sendService->addAddress('bcc', new Address('bcc@email.test'));
 
 $sendService->setAttachments(new AttachmentCollection([ new Attachment('/path/to/attachment'), new Attachment('/path/to/another_attachment')]);
 
+$inline = new InlineAttachment('a-cat-picture', file_get_contents('attachments/cat.jpg'), 'image/jpeg');
 
+$sendService->addAttachment($inline);
 
 $sendService->addCustomHeader(new CustomHeader('Reply-To', 'replyto@email.test'));
 
