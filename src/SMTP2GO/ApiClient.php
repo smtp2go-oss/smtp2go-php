@@ -126,7 +126,7 @@ class ApiClient
     }
 
     /**
-     * Return the response body as a string
+     * Return the response body as a json object or string
      *
      * @return \stdClass|string
      */
