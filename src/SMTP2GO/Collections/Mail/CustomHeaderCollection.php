@@ -43,13 +43,13 @@ class CustomHeaderCollection extends Collection
 
         if (is_a($header, CustomHeader::class)) {
             /** @var CustomHeader $header */
-            if (in_array($header->getHeader(), static::ALLOWED_MULTIPLE_HEADERS)) {
+            if (in_array(strtolower($header->getHeader()), static::ALLOWED_MULTIPLE_HEADERS)) {
                 $this->items[] = $header;
             } else {
                 $found = false;
                 foreach ($this->items as $customHeader) {
                     /** @var CustomHeader $customHeader */
-                    if ($header->getHeader() === $customHeader->getHeader()) {
+                    if (strtolower($header->getHeader()) === strtolower($customHeader->getHeader())) {
                         $customHeader->setValue($header->getValue());
                         $found = true;
                         break;

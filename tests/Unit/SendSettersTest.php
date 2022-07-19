@@ -133,7 +133,7 @@ class SendSettersTest extends TestCase
         $this->assertEquals('someone@email.test', $headerItems[0]->getValue());
 
 
-        $headers->add(new CustomHeader('Reply-To', 'somebodyelse@email.test'));
+        $headers->add(new CustomHeader('reply-to', 'somebodyelse@email.test'));
         $headerItems = $headers->getItems();
         $this->assertCount(1, $headerItems);
         $this->assertEquals('somebodyelse@email.test', $headerItems[0]->getValue());
@@ -155,7 +155,7 @@ class SendSettersTest extends TestCase
         $this->assertEquals('a comment', $headerItems[0]->getValue());
 
 
-        $headers->add(new CustomHeader('comments', 'another comment'));
+        $headers->add(new CustomHeader('Comments', 'another comment'));
         $headerItems = $headers->getItems();
         $this->assertCount(2, $headerItems);
         $this->assertEquals('another comment', $headerItems[1]->getValue());
