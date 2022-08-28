@@ -31,13 +31,24 @@ class Collection implements \ArrayAccess, \Iterator
         return isset($this->items[$offset]);
     }
 
+    /**
+     * @param mixed $offset 
+     * @return void 
+     */
     public function offsetUnset($offset): void
     {
         unset($this->items[$offset]);
     }
 
+    
+    /**
+     * @param mixed $offset 
+     * @return mixed 
+     */
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
+        
         return isset($this->items[$offset]) ? $this->items[$offset] : null;
     }
 
@@ -49,26 +60,33 @@ class Collection implements \ArrayAccess, \Iterator
         return $this->items;
     }
 
+    /** @return void  */
     public function rewind(): void
     {
         $this->position = 0;
     }
 
+    /** @return mixed  */
+    #[\ReturnTypeWillChange]
     public function current()
     {
         return $this->items[$this->position];
     }
 
+    /** @return mixed  */
+    #[\ReturnTypeWillChange]
     public function key()
     {
         return $this->position;
     }
 
+    /** @return void  */
     public function next(): void
     {
         ++$this->position;
     }
 
+    /** @return bool  */
     public function valid(): bool
     {
         return isset($this->items[$this->position]);
