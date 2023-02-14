@@ -100,7 +100,7 @@ class ApiClient
 
         $body['api_key'] = $this->apiKey;
 
-        $basepath = dirname(__FILE__, 3);
+        $caPathOrFile = \Composer\CaBundle\CaBundle::getSystemCaRootBundlePath();
 
         try {
             $this->lastResponse = $this->httpClient->request(
@@ -109,7 +109,7 @@ class ApiClient
                 //ensures user options can overwrite these defaults
                 $this->requestOptions + [
                     'json'   => $body,
-                    'verify' => $basepath . '/ca-bundle.crt',
+                    'verify' => $caPathOrFile,
                 ]
             );
         } catch (ClientException $e) {
