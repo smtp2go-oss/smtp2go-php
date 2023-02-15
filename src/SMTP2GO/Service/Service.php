@@ -1,4 +1,5 @@
 <?php
+
 namespace SMTP2GO\Service;
 
 use SMTP2GO\Contracts\BuildsRequest;
@@ -36,6 +37,9 @@ class Service implements BuildsRequest
 
     public function setEndpoint(string $endpoint)
     {
+        if (strpos($endpoint, '/') === 0) {
+            $endpoint = substr($endpoint, 1);
+        }
         $this->endpoint = $endpoint;
     }
 
