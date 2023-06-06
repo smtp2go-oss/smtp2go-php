@@ -2,3 +2,4 @@
 phpunit-dev.xml
 vendor
 Examples
+.vscode
