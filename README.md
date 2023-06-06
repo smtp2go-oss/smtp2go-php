@@ -52,6 +52,8 @@ $sendService->addCustomHeader(new CustomHeader('Reply-To', 'replyto@email.test')
 
 $apiClient = new ApiClient('api-YOURAPIKEY');
 
+$apiClient->setApiRegion('us');
+
 $success = $apiClient->consume($sendService);
 
 $responseBody = $apiClient->getResponseBody();
