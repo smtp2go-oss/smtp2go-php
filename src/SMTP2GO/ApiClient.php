@@ -13,10 +13,16 @@ class ApiClient
 {
     /**
      * the "base" url for the api
-     *
      * @var string
      */
     const API_URL = 'https://api.smtp2go.com/v3/';
+
+    /**
+     * The region to use for the api
+     *
+     * @var string
+     */
+    protected $apiRegion = '';
 
     /**
      * The last response recieved from the api as a json object
@@ -105,7 +111,7 @@ class ApiClient
         try {
             $this->lastResponse = $this->httpClient->request(
                 $service->getMethod(),
-                static::API_URL . $service->getEndpoint(),
+                $this->getApiUrl() . $service->getEndpoint(),
                 //ensures user options can overwrite these defaults
                 $this->requestOptions + [
                     'json'   => $body,
@@ -124,6 +130,19 @@ class ApiClient
 
         return $statusCode === 200;
     }
+
+    /**
+     * Get the url to use for the api request, optionally based on the region set by the user
+     * @return string 
+     */
+    public function getApiUrl()
+    {
+        if ($this->getApiRegion() === '') {
+            return static::API_URL;
+        }
+        return sprintf('https://%s-api.smtp2go.com/v3/', $this->getApiRegion());
+    }
+
 
     /**
      * Return the response body as a json object or string
@@ -198,5 +217,32 @@ class ApiClient
     public function getrequestOptions(): array
     {
         return $this->requestOptions;
+    }
+
+    /**
+     * Get the region to use for the api
+     *
+     * @return  string
+     */ 
+    public function getApiRegion()
+    {
+        return $this->apiRegion;
+    }
+
+    /**
+     * Set the region to use for the api
+     *
+     * @param  string  $apiRegion  The region to use for the api
+     *
+     * @return  self
+     */ 
+    public function setApiRegion(string $apiRegion)
+    {
+        if (!in_array($apiRegion, ['us', 'eu', 'au'])) {
+            throw new \InvalidArgumentException('Invalid region provided. Must be either us, eu or au');
+        }
+        $this->apiRegion = $apiRegion;
+
+        return $this;
     }
 }
