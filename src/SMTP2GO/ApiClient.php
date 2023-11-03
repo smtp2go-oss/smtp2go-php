@@ -158,14 +158,14 @@ class ApiClient
         $caPathOrFile = \Composer\CaBundle\CaBundle::getSystemCaRootBundlePath();
         do {
             try {
-                $apiUrlForRequest = $this->getApiUrlForRequest();
-                $this->debug[] = "api for url request is " . $apiUrlForRequest;
+                $serverIpForRequest = $this->getServerIpForRequest();
+                $this->debug[] = "api for url request is " . $serverIpForRequest;
                 //if the url doesn't contain the host name then we need to use the resolve feature in curl
-                if (!empty($apiUrlForRequest)) {
+                if (!empty($serverIpForRequest)) {
                     $curlOpts = [
                         'curl' => [
                             CURLOPT_RESOLVE => [
-                                static::HOST . ':443:' . substr($apiUrlForRequest, 0, -1),
+                                static::HOST . ':443:' . $serverIpForRequest,
                             ],
                         ],
                     ];
@@ -184,7 +184,6 @@ class ApiClient
                         $curlOpts,
                         'on_stats' => function (\GuzzleHttp\TransferStats $stats) {
                             $handlerStats = $stats->getHandlerStats();
-                            $this->debug[] = "we should ignore " . $handlerStats['primary_ip'];
                             $this->ipToIgnore = $handlerStats['primary_ip'];
                         },
                     ]
@@ -206,7 +205,7 @@ class ApiClient
             } catch (\Exception $e) {
                 $failedAttempts = $this->maxSendAttempts;
             }
-        } while (!$successful && $failedAttempts < $this->maxSendAttempts);
+        } while (!$successful && $failedAttempts < $this->maxSendAttempts && !empty($this->apiServerIps));
         $statusCode = null;
         if (!empty($this->lastResponse)) {
             $this->debug[] = ['last response is ' . $this->lastResponse->getBody()];
@@ -229,13 +228,13 @@ class ApiClient
         return sprintf('https://%s-api.smtp2go.com/v3/', $this->getApiRegion());
     }
 
-    protected function getApiUrlForRequest()
+    protected function getServerIpForRequest()
     {
         if (empty($this->apiServerIps)) {
             return;
         }
         $next = array_pop($this->apiServerIps);
-        return $next . '/';
+        return $next;
     }
 
     private function loadApiServerIps()
