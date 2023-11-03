@@ -233,7 +233,7 @@ class ApiClient
     {
         if (empty($this->apiServerIps)) {
             return;
-        }        
+        }
         $next = array_pop($this->apiServerIps);
         return $next . '/';
     }
@@ -241,7 +241,7 @@ class ApiClient
     private function loadApiServerIps()
     {
         $ips = gethostbynamel(static::HOST);
-        if (!empty($ips)) {
+        if (!empty($ips) && is_array($ips)) {
             $this->apiServerIps = array_filter($ips, function ($ip) {
                 return $ip !== $this->ipToIgnore;
             });
@@ -329,7 +329,7 @@ class ApiClient
      *
      * @return  string
      */
-    public function getApiRegion()
+    public function getApiRegion(): string
     {
         return $this->apiRegion;
     }
@@ -411,7 +411,7 @@ class ApiClient
      * Get the timeout increment to use when retrying the request
      *
      * @return  int|float
-     */ 
+     */
     public function getTimeoutIncrement()
     {
         return $this->timeoutIncrement;
@@ -423,7 +423,7 @@ class ApiClient
      * @param  int|float  $timeoutIncrement  The timeout increment to use when retrying the request
      *
      * @return  self
-     */ 
+     */
     public function setTimeoutIncrement($timeoutIncrement)
     {
         $this->timeoutIncrement = $timeoutIncrement;

@@ -17,13 +17,12 @@ class RetrySendTest extends TestCase
      */
     public function test_setting_retry()
     {
+        //@todo this needs to use a mock handler rather than a real api call
         $service = new Service('stats/email_summary',[]);
         $apiClient = new ApiClient(SMTP2GO_API_KEY);
         $apiClient->setMaxSendAttempts(5);
         $apiClient->setTimeout(2);
         $apiClient->setTimeoutIncrement(1);
         $this->assertTrue($apiClient->consume($service));
-
-        print_r($apiClient->getDebug());
     }
 }
