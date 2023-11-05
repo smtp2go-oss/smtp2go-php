@@ -52,7 +52,14 @@ $sendService->addCustomHeader(new CustomHeader('Reply-To', 'replyto@email.test')
 
 $apiClient = new ApiClient('api-YOURAPIKEY');
 
+#set a custom region
 $apiClient->setApiRegion('us');
+
+#set the client to retry using a different server ip if possible
+$apiClient->setMaxSendAttempts(5);
+
+#set the number of seconds to increase the request timeout with each attempt
+$apiClient->setTimeoutIncrement(5);
 
 $success = $apiClient->consume($sendService);
 
