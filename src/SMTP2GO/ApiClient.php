@@ -23,6 +23,7 @@ class ApiClient
 
     /**
      * The region to use for the api
+     * allowed options are 'us', 'eu', 'au'
      *
      * @var string
      */
@@ -36,7 +37,8 @@ class ApiClient
     protected $lastResponse = null;
 
     /**
-     * If an exception is thrown during the request, the last request will be stored here
+     * If an exception is thrown during the request,
+     * the last request will be stored here
      *
      * @var \Psr\Http\Message\RequestInterface
      */
@@ -69,7 +71,8 @@ class ApiClient
 
     /**
      * The maximum number of times to attempt to send the email
-     * The client will attempt to iterate through available servers until the email is sent or the maximum number of attempts is reached
+     * The client will attempt to iterate through available servers 
+     * until the email is sent or the maximum number of attempts is reached
      * @var int
      */
     protected $maxSendAttempts = 1;
@@ -86,20 +89,29 @@ class ApiClient
      */
     protected $timeoutIncrement = 5;
 
+    /**
+     * The number of failed attempts the most request has
+     * @var int
+     */
+    protected $failedAttempts = 0;
+
 
     /**
-     * The ips of the api servers
+     * The ips of the api servers. These will be used to resolve the
+     * host name to an ip address if the first request fails
+     * and the maxSendAttempts is greater than 1
      * @var array
      */
     protected array $apiServerIps = [];
 
+    /**
+     * In the case of the first request failing, this will  
+     * be set to the ip address of the server that failed
+     * so that it can be ignored in subsequent requests
+     */
     private $ipToIgnore = null;
 
-    /**
-     * The debug info from the last request
-     * @var array
-     */
-    private array $debug;
+
 
     public function __construct($apiKey)
     {
@@ -145,21 +157,21 @@ class ApiClient
 
         $body['api_key'] = $this->apiKey;
 
-        $failedAttempts = 0;
+        $this->failedAttempts = 0;
 
         $successful = false;
 
         $curlOpts = [];
 
-        $this->debug = [];
 
         $this->ipToIgnore = null;
+
+        $shouldRetry = $this->getMaxSendAttempts() > 1;
 
         $caPathOrFile = \Composer\CaBundle\CaBundle::getSystemCaRootBundlePath();
         do {
             try {
                 $serverIpForRequest = $this->getServerIpForRequest();
-                $this->debug[] = "api for url request is " . $serverIpForRequest;
                 //if the url doesn't contain the host name then we need to use the resolve feature in curl
                 if (!empty($serverIpForRequest)) {
                     $curlOpts = [
@@ -184,31 +196,28 @@ class ApiClient
                         $curlOpts,
                         'on_stats' => function (\GuzzleHttp\TransferStats $stats) {
                             $handlerStats = $stats->getHandlerStats();
-                            $this->ipToIgnore = $handlerStats['primary_ip'];
+                            $this->ipToIgnore = $handlerStats['primary_ip'] ?? null;
                         },
                     ]
                 );
+
                 $successful = true;
             } catch (ClientException $e) {
                 $this->lastRequest  = $e->getRequest();
                 $this->lastResponse = $e->getResponse();
-                $failedAttempts = $this->maxSendAttempts;
+                $shouldRetry = false;
             } catch (RequestException | ConnectException $e) {
-                $failedAttempts++;
-                $this->debug[] = ['exception caught: ' . $e->getMessage()];
-                $this->debug[] = ['incremeted failed attempts to ' . $failedAttempts];
+                $this->failedAttempts++;
                 $this->setTimeout($this->getTimeout() + $this->getTimeoutIncrement());
-                $this->debug[] = ['incremeted timeout to ' . $this->getTimeout()];
                 if (empty($this->apiServerIps) && $this->maxSendAttempts > 1) {
                     $this->loadApiServerIps();
                 }
             } catch (\Exception $e) {
-                $failedAttempts = $this->maxSendAttempts;
+                $shouldRetry = false;
             }
-        } while (!$successful && $failedAttempts < $this->maxSendAttempts && !empty($this->apiServerIps));
+        } while (!$successful && $shouldRetry && $this->failedAttempts < $this->maxSendAttempts && !empty($this->apiServerIps));
         $statusCode = null;
         if (!empty($this->lastResponse)) {
-            $this->debug[] = ['last response is ' . $this->lastResponse->getBody()];
             $statusCode = $this->lastResponse->getStatusCode();
         }
 
@@ -398,13 +407,7 @@ class ApiClient
         return $this;
     }
 
-    /**
-     * Get the value of debug
-     */
-    public function getDebug()
-    {
-        return $this->debug;
-    }
+
 
     /**
      * Get the timeout increment to use when retrying the request
@@ -428,5 +431,28 @@ class ApiClient
         $this->timeoutIncrement = $timeoutIncrement;
 
         return $this;
+    }
+
+    /**
+     * get IP addresses for the host 
+     *
+     * @return  array
+     */
+    public function getApiServerIps($loadIfEmpty = true)
+    {
+        if ($loadIfEmpty && empty($this->getApiServerIps())) {
+            $this->loadApiServerIps();
+        }
+        return $this->apiServerIps;
+    }
+
+    /**
+     * Get the number of failed attempts the most request has
+     *
+     * @return  int
+     */
+    public function getFailedAttempts()
+    {
+        return $this->failedAttempts;
     }
 }
