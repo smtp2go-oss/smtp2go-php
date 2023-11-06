@@ -67,6 +67,39 @@ $responseBody = $apiClient->getResponseBody();
 
 ```
 
+### Sending email using a template
+https://app-us.smtp2go.com/settings/templates/
+
+This example is for the example template "User Welcome"
+
+```php
+use SMTP2GO\ApiClient;
+use SMTP2GO\Types\Mail\Address;
+use SMTP2GO\Service\Mail\Send as MailSend;
+use SMTP2GO\Collections\Mail\AddressCollection;
+
+$client = new ApiClient('api-46A74340EFB311E98B49F23C91C88F4E');
+$sendService = new MailSend(
+    new Address('sender@site.test', 'Sender Name'),
+    new AddressCollection([
+        new Address('recipient@example.test', 'Bob Recipient'),
+    ]),
+    '', //subject is empty as this is defined in the template
+    '', //body is empty as this is generated from the template
+);
+$sendService->setTemplateId(6040276);
+$sendService->setTemplateData([
+    "username" => "Steve",
+    "product_name" => "Widgets",
+    "action_url" => "https://website.localhost",
+    "login_url" => "https://website.localhost/login",
+    "guide_url" => "https://website.localhost/guide",
+    "support_email" => "support@website.localhost",
+    "sender_name" => "Bob Widgets"
+]);
+
+$res = $client->consume($sendService);
+```
 ### Consuming an endpoint in the API using the generic Service class
 ```php
 $apiClient = new ApiClient('api-YOURAPIKEY');
