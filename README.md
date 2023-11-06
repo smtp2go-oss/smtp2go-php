@@ -42,7 +42,7 @@ $sendService = new MailSend(
 $sendService->addAddress('cc', new Address('cc@email.test'));
 $sendService->addAddress('bcc', new Address('bcc@email.test'));
 
-$sendService->setAttachments(new AttachmentCollection([ new Attachment('/path/to/attachment'), new Attachment('/path/to/another_attachment')]);
+$sendService->setAttachments(new AttachmentCollection([ new Attachment('/path/to/attachment'), new Attachment('/path/to/another_attachment')]));
 
 $inline = new InlineAttachment('a-cat-picture', file_get_contents('attachments/cat.jpg'), 'image/jpeg');
 
