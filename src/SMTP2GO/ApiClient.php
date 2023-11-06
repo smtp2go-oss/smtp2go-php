@@ -172,7 +172,6 @@ class ApiClient
         do {
             try {
                 $serverIpForRequest = $this->getServerIpForRequest();
-                //if the url doesn't contain the host name then we need to use the resolve feature in curl
                 if (!empty($serverIpForRequest)) {
                     $curlOpts = [
                         'curl' => [
