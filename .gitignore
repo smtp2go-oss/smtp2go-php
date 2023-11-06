@@ -3,3 +3,4 @@ phpunit-dev.xml
 vendor
 Examples
 .vscode
+composer.lock
