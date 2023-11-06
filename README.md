@@ -13,6 +13,10 @@ use SMTP2GO\ApiClient;
 use SMTP2GO\Service\Mail\Send as MailSend;
 use SMTP2GO\Types\Mail\Address;
 use SMTP2GO\Collections\Mail\AddressCollection;
+use SMTP2GO\Collections\Mail\AttachmentCollection;
+use SMTP2GO\Types\Mail\Attachment;
+use SMTP2GO\Types\Mail\InlineAttachment;
+use SMTP2GO\Types\Mail\CustomHeader;
 
 $message = <<<EOF
 
@@ -42,7 +46,7 @@ $sendService = new MailSend(
 $sendService->addAddress('cc', new Address('cc@email.test'));
 $sendService->addAddress('bcc', new Address('bcc@email.test'));
 
-$sendService->setAttachments(new AttachmentCollection([ new Attachment('/path/to/attachment'), new Attachment('/path/to/another_attachment')]);
+$sendService->setAttachments(new AttachmentCollection([ new Attachment('/path/to/attachment'), new Attachment('/path/to/another_attachment')]));
 
 $inline = new InlineAttachment('a-cat-picture', file_get_contents('attachments/cat.jpg'), 'image/jpeg');
 
