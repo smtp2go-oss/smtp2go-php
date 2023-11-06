@@ -73,12 +73,16 @@ class Send implements BuildsRequest
 
 
     /**
+     * The template id to use
+     * @link https://app-us.smtp2go.com/settings/templates/
      * @var string|null
      */
 
     protected ?string $template_id = null;
 
     /**
+     * The template data to use which is key value pairs of [placeholder => replacement]
+     * @link https://app-us.smtp2go.com/settings/templates/
      * @var array
      */
     protected $template_data;
