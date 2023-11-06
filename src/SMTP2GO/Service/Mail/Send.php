@@ -76,7 +76,7 @@ class Send implements BuildsRequest
      * @var string
      */
 
-    protected $template_id;
+    protected string $template_id;
 
     /**
      * @var array
@@ -590,7 +590,7 @@ class Send implements BuildsRequest
      *
      * @return  self
      */
-    public function setTemplateId($template_id)
+    public function setTemplateId(string $template_id)
     {
         $this->template_id = $template_id;
 
@@ -606,7 +606,7 @@ class Send implements BuildsRequest
      */
     public function setTemplateData(array $template_data)
     {
-        $this->template_data = json_encode($template_data);
+        $this->template_data = $template_data;
 
         return $this;
     }
