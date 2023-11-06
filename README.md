@@ -13,6 +13,10 @@ use SMTP2GO\ApiClient;
 use SMTP2GO\Service\Mail\Send as MailSend;
 use SMTP2GO\Types\Mail\Address;
 use SMTP2GO\Collections\Mail\AddressCollection;
+use SMTP2GO\Collections\Mail\AttachmentCollection;
+use SMTP2GO\Types\Mail\Attachment;
+use SMTP2GO\Types\Mail\InlineAttachment;
+use SMTP2GO\Types\Mail\CustomHeader;
 
 $message = <<<EOF
 
