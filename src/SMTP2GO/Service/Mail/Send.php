@@ -588,6 +588,7 @@ class Send implements BuildsRequest
     /**
      * Set the value of template_id
      *
+     * @param  string  $template_id
      * @return  self
      */
     public function setTemplateId(string $template_id)
