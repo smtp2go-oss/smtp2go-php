@@ -170,8 +170,8 @@ class Send implements BuildsRequest
         $body['attachments'] = $this->buildAttachments();
         $body['inlines']     = $this->buildInlines();
 
-        $body['template_id'] = $this->template_id;
-        $body['template_data'] = $this->template_data;
+        $body['template_id'] = $this->template_id ?? null;
+        $body['template_data'] = $this->template_data ?? null;
         $body['version'] = $this->version;
 
         return array_filter($body);
