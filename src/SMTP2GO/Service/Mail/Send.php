@@ -73,10 +73,10 @@ class Send implements BuildsRequest
 
 
     /**
-     * @var string
+     * @var string|null
      */
 
-    protected string $template_id;
+    protected ?string $template_id = null;
 
     /**
      * @var array
