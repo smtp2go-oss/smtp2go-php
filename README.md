@@ -14,7 +14,7 @@ use SMTP2GO\Service\Mail\Send as MailSend;
 use SMTP2GO\Types\Mail\Address;
 use SMTP2GO\Collections\Mail\AddressCollection;
 use SMTP2GO\Collections\Mail\AttachmentCollection;
-use SMTP2GO\Types\Mail\Attachment;
+use SMTP2GO\Types\Mail\FileAttachment;
 use SMTP2GO\Types\Mail\InlineAttachment;
 use SMTP2GO\Types\Mail\CustomHeader;
 
@@ -46,7 +46,7 @@ $sendService = new MailSend(
 $sendService->addAddress('cc', new Address('cc@email.test'));
 $sendService->addAddress('bcc', new Address('bcc@email.test'));
 
-$sendService->setAttachments(new AttachmentCollection([ new Attachment('/path/to/attachment'), new Attachment('/path/to/another_attachment')]));
+$sendService->setAttachments(new AttachmentCollection([ new FileAttachment('attachment-data','file1.txt'), new FileAttachment('another-attachment-data','file2.txt')]));
 
 $inline = new InlineAttachment('a-cat-picture', file_get_contents('attachments/cat.jpg'), 'image/jpeg');
 
@@ -82,7 +82,7 @@ use SMTP2GO\Types\Mail\Address;
 use SMTP2GO\Service\Mail\Send as MailSend;
 use SMTP2GO\Collections\Mail\AddressCollection;
 
-$client = new ApiClient('api-46A74340EFB311E98B49F23C91C88F4E');
+$client = new ApiClient('api-YOURAPIKEY');
 $sendService = new MailSend(
     new Address('sender@site.test', 'Sender Name'),
     new AddressCollection([
