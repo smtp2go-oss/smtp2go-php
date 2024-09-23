@@ -498,7 +498,7 @@ class Send implements BuildsRequest
     }
 
     /**
-     * Set attachments as an array of filepaths e.g ```['/path/to/file1.txt','/path/to/file2.jpg']```
+     * Set attachments
      *
      * @param  AttachmentCollection  $attachments
      *
@@ -522,7 +522,7 @@ class Send implements BuildsRequest
     }
 
     /**
-     * Set inline attachments as an array of filepaths e.g ```['/path/to/file1.txt','/path/to/file2.jpg']```
+     * Set inline attachments
      *
      * @param  AttachmentCollection  $inlines  Inline attachments
      *
