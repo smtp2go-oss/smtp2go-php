@@ -318,6 +318,9 @@ class ApiClient
      */
     public function getLastRequest($asString = true)
     {
+        if (!$this->lastRequest) {
+            return $asString ? '' : null;
+        }
         return $asString ? Message::toString($this->lastRequest) : $this->lastRequest;
     }
 
