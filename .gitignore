@@ -4,3 +4,4 @@ vendor
 Examples
 .vscode
 composer.lock
+release-dev-tag.sh
