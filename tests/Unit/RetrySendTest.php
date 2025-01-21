@@ -71,4 +71,15 @@ class RetrySendTest extends TestCase
         $this->assertNotEmpty($apiClient->getLastResponse());
         $this->assertEquals(503, $apiClient->getLastResponseStatusCode());
     }
+
+    /**
+     * @covers  \SMTP2GO\Service\Service
+     * @covers \SMTP2GO\ApiClient
+     * @return void
+     */
+    public function test_retrieving_null_last_response()
+    {
+        $apiClient  = new ApiClient(SMTP2GO_API_KEY);
+        $this->assertNull($apiClient->getLastResponse());
+    }
 }

@@ -316,9 +316,9 @@ class ApiClient
     /**
      * Get last response
      *
-     * @return  \Psr\Http\Message\ResponseInterface
+     * @return  \Psr\Http\Message\ResponseInterface|null
      */
-    public function getLastResponse(): \Psr\Http\Message\ResponseInterface
+    public function getLastResponse(): ?\Psr\Http\Message\ResponseInterface
     {
         return $this->lastResponse ?? null;
     }
