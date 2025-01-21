@@ -39,17 +39,36 @@ class RetrySendTest extends TestCase
 
         $result = $apiClient->consume($service);
 
-
-
         $this->assertTrue($result);
         $this->assertNotEmpty($apiClient->getApiServerIps(false));
         $this->assertEquals(1, $apiClient->getFailedAttempts());
+    }
 
+    /**
+     * @covers  \SMTP2GO\Service\Service
+     * @covers \SMTP2GO\ApiClient
+     * @return void
+     */
+    public function test_no_retries_sets_last_request_and_response_when_exception_is_thrown()
+    {
+        $mockResponses = new MockHandler([new Response(503, [], 'Service Unavailable')]);
+        $handler = HandlerStack::create($mockResponses);
+        $httpClient   = new Client(['handler' => $handler]);
+        $apiClient  = new ApiClient(SMTP2GO_API_KEY);
+        $apiClient->setHttpClient($httpClient);
 
+        $apiClient->setRequestOptions(['verify' => false]);
 
+        $apiClient->setMaxSendAttempts(1);
+        $apiClient->setTimeout(2);
+        $apiClient->setTimeoutIncrement(1);
 
+        $service = new Service('stats/email_bounces');
+        $result = $apiClient->consume($service);
 
-
-        // $this->assertTrue();
+        $this->assertFalse($result);
+        $this->assertNotEmpty($apiClient->getLastRequest());
+        $this->assertNotEmpty($apiClient->getLastResponse());
+        $this->assertEquals(503, $apiClient->getLastResponseStatusCode());
     }
 }

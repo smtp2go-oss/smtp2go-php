@@ -207,6 +207,8 @@ class ApiClient
                 $shouldRetry = false;
             } catch (RequestException | ConnectException $e) {
                 $this->failedAttempts++;
+                $this->lastRequest  = $e->getRequest();
+                $this->lastResponse = $e->getResponse();
                 $this->setTimeout($this->getTimeout() + $this->getTimeoutIncrement());
                 if (empty($this->apiServerIps) && $this->maxSendAttempts > 1) {
                     $this->loadApiServerIps();
@@ -318,7 +320,7 @@ class ApiClient
      */
     public function getLastResponse(): \Psr\Http\Message\ResponseInterface
     {
-        return $this->lastResponse;
+        return $this->lastResponse ?? null;
     }
 
     /**
