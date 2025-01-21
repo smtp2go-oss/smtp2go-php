@@ -111,11 +111,18 @@ class ApiClient
      */
     private $ipToIgnore = null;
 
+    /**
+     * Holds information about requests that resulted in RequestException | ConnectException exceptions
+     * This is useful for debugging and logging when utilising the retry feature, by setting maxSendAttempts > 1
+     * @var array
+     */
+    protected $failedAttemptInfo = [];
+
 
 
     public function __construct($apiKey)
     {
-        $this->setApiKey($apiKey);
+        $this->apiKey = $apiKey;
         $this->httpClient = new Client;
     }
 
@@ -209,6 +216,7 @@ class ApiClient
                 $this->failedAttempts++;
                 $this->lastRequest  = $e->getRequest();
                 $this->lastResponse = $e->getResponse();
+                $this->failedAttemptInfo[] = ['ip' => $serverIpForRequest, 'error' => $e->getMessage(),];
                 $this->setTimeout($this->getTimeout() + $this->getTimeoutIncrement());
                 if (empty($this->apiServerIps) && $this->maxSendAttempts > 1) {
                     $this->loadApiServerIps();
@@ -244,17 +252,25 @@ class ApiClient
             return;
         }
         $next = array_pop($this->apiServerIps);
+
         return $next;
     }
 
     private function loadApiServerIps()
     {
-        $ips = gethostbynamel(static::HOST);
-        if (!empty($ips) && is_array($ips)) {
-            $this->apiServerIps = array_filter($ips, function ($ip) {
-                return $ip !== $this->ipToIgnore;
-            });
+        if (empty($this->getApiServerIps())) {
+            $ips = gethostbynamel(static::HOST);
+            if (!empty($ips) && is_array($ips)) {
+                $this->setApiServerIps(array_filter($ips, function ($ip) {
+                    return $ip !== $this->ipToIgnore;
+                }));
+            }
         }
+    }
+
+    public function setApiServerIps(array $ips)
+    {
+        $this->apiServerIps = $ips;
     }
 
 
@@ -466,11 +482,8 @@ class ApiClient
      *
      * @return  array
      */
-    public function getApiServerIps($loadIfEmpty = true)
+    public function getApiServerIps()
     {
-        if ($loadIfEmpty && empty($this->getApiServerIps())) {
-            $this->loadApiServerIps();
-        }
         return $this->apiServerIps;
     }
 
@@ -482,5 +495,15 @@ class ApiClient
     public function getFailedAttempts()
     {
         return $this->failedAttempts;
+    }
+
+    /**
+     * Get the failed attempt info
+     *
+     * @return  array
+     */
+    public function getFailedAttemptInfo()
+    {
+        return $this->failedAttemptInfo;
     }
 }
