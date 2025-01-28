@@ -215,7 +215,9 @@ class ApiClient
             } catch (RequestException | ConnectException $e) {
                 $this->failedAttempts++;
                 $this->lastRequest  = $e->getRequest();
-                $this->lastResponse = $e->getResponse();
+                if ($e instanceof RequestException) {
+                    $this->lastResponse = $e->getResponse();
+                }
                 $this->failedAttemptInfo[] = ['ip' => $serverIpForRequest, 'error' => $e->getMessage(),];
                 $this->setTimeout($this->getTimeout() + $this->getTimeoutIncrement());
                 if (empty($this->apiServerIps) && $this->maxSendAttempts > 1) {
