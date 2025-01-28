@@ -1,6 +1,7 @@
 <?php
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
@@ -20,8 +21,12 @@ class RetrySendTest extends TestCase
         //@todo this needs to use a mock handler rather than a real api call
 
         $expectedResponse = '{"request_id": "65e68938-c332-11eb-8a00-f23c9216ceac", "data": {"emails": 56, "rejects": 0, "softbounces": 4, "hardbounces": 0, "bounce_percent": "7.14"}}';
-
-        $mockResponses = new MockHandler([new Response(503, [], 'Service Unavailable'), new Response(503, [], 'Service Unavailable'), new Response(200, [], $expectedResponse)]);
+        // new ConnectException('Connection Error', new Request('GET', 'test'));
+        $mockResponses = new MockHandler([
+            new Response(503, [], 'Service Unavailable'),
+            new ConnectException('Connection Error', new \GuzzleHttp\Psr7\Request('GET', 'test')),
+            new Response(200, [], $expectedResponse)
+        ]);
         $handler = HandlerStack::create($mockResponses);
         $httpClient   = new Client(['handler' => $handler]);
 
@@ -48,7 +53,7 @@ class RetrySendTest extends TestCase
         $result = $apiClient->consume($service);
         $this->assertTrue($result);
         // 3 attempts so 1 possible ip will be left (127.0.0.1) after the others are array_pop'd
-        $this->assertCount(1,$apiClient->getApiServerIps(false));
+        $this->assertCount(1, $apiClient->getApiServerIps(false));
         $this->assertEquals(2, $apiClient->getFailedAttempts());
 
         $this->assertCount(2, $apiClient->getFailedAttemptInfo());
