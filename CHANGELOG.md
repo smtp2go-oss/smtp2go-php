@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [1.1.6] - 2025-02-25
+
+- ApiClient stores failedAttemptInfo for debugging
+- Better request exception handling
+- Better tests for retry feature
+
 ## [1.1.5] - 2024-12-11
 
 - add new FileAttachment type which does not require an absolute path
