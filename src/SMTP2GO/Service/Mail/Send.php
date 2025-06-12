@@ -118,11 +118,11 @@ class Send implements BuildsRequest
     protected $version = 1;
 
     /**
-     * @var bool shouldSchedule
-     * If true, the email will be scheduled for sending via a queue.
+     * @var int scheduleAt
+     * A unix timestamp to schedule the email for sending in the future.
      * 
      */
-    protected $shouldSchedule = false;
+    protected $scheduleAt = null;
 
     /**
      * endpoint to send to
@@ -184,15 +184,18 @@ class Send implements BuildsRequest
         $body['template_id'] = $this->template_id ?? null;
         $body['template_data'] = $this->template_data ?? null;
         $body['version'] = $this->version;
-        $body['schedule'] = $this->shouldSchedule;
+        $body['schedule'] = $this->scheduleAt;
 
 
         return array_filter($body);
     }
 
-    public function shouldSchedule(bool $shouldSchedule)
+    public function scheduleAt(int $timestamp)
     {
-        $this->shouldSchedule = $shouldSchedule;
+        if ($timestamp < time() || $timestamp > time() + (3 * 24 * 60 * 60)) {
+            throw new \InvalidArgumentException('The timestamp must be a valid unix timestamp in the future, and no more than 3 days from now.');
+        }
+        $this->scheduleAt = $timestamp;
         return $this;
     }
 
