@@ -118,6 +118,13 @@ class Send implements BuildsRequest
     protected $version = 1;
 
     /**
+     * @var bool shouldSchedule
+     * If true, the email will be scheduled for sending via a queue.
+     * 
+     */
+    protected $shouldSchedule = false;
+
+    /**
      * endpoint to send to
      *
      * @var string
@@ -177,8 +184,16 @@ class Send implements BuildsRequest
         $body['template_id'] = $this->template_id ?? null;
         $body['template_data'] = $this->template_data ?? null;
         $body['version'] = $this->version;
+        $body['schedule'] = $this->shouldSchedule;
+
 
         return array_filter($body);
+    }
+
+    public function shouldSchedule(bool $shouldSchedule)
+    {
+        $this->shouldSchedule = $shouldSchedule;
+        return $this;
     }
 
 
