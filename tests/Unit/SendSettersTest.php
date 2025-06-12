@@ -170,4 +170,17 @@ class SendSettersTest extends TestCase
     {
         $this->assertEquals('email/send', $this->sender->getEndpoint());
     }
+
+    public function testSettingShouldSchedule()
+    {
+        $this->sender->shouldSchedule(true);
+        $this->assertArrayHasKey('schedule', $this->sender->buildRequestBody());
+    }
+
+        public function testSettingShouldScheduleAsFalse()
+    {
+        $this->sender->shouldSchedule(false);
+        $this->assertArrayNotHasKey('schedule', $this->sender->buildRequestBody());
+    }
+
 }
