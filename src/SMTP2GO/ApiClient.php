@@ -290,7 +290,11 @@ class ApiClient
             return (string) $this->lastResponse->getBody();
         }
         if ($this->lastResponse) {
-            return Utils::jsonDecode((string) $this->lastResponse->getBody());
+            try {
+                return Utils::jsonDecode((string) $this->lastResponse->getBody());
+            } catch (\Exception $e) {
+                return (object) [];
+            }
         }
     }
 

@@ -4,7 +4,9 @@ use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
+use SebastianBergmann\RecursionContext\InvalidArgumentException;
 use SMTP2GO\ApiClient;
 use SMTP2GO\Service\Service;
 
@@ -48,7 +50,6 @@ class MockApiTest extends TestCase
         $rawBody = $client->getResponseBody(false);
         $this->assertIsString($rawBody);
         $this->assertEquals($rawBody, $expectedResponse);
-        
     }
 
     /**
@@ -80,5 +81,30 @@ class MockApiTest extends TestCase
 
         $this->assertNotEmpty($client->getLastRequest());
         $this->assertFalse($result);
+    }
+
+    /**
+     * @covers \SMTP2GO\Service\Service
+     * @return void 
+     */
+    public function testHittingRateLimitCall()
+    {
+        $mock = new MockHandler([
+            new Response(429, [], ''),
+        ]);
+
+        $handlerStack = HandlerStack::create($mock);
+        $httpClient   = new Client(['handler' => $handlerStack]);
+
+        $service = new Service('stats/email_bounces');
+        $client  = new ApiClient(SMTP2GO_API_KEY);
+
+        $client->setHttpClient($httpClient);
+
+        $result = $client->consume($service);
+
+        $this->assertNotEmpty($client->getLastRequest());
+        $this->assertFalse($result);
+        $this->assertIsObject($client->getResponseBody(true));
     }
 }
