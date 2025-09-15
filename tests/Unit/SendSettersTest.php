@@ -171,7 +171,7 @@ class SendSettersTest extends TestCase
         $this->assertEquals('email/send', $this->sender->getEndpoint());
     }
 
-    public function testSettingSheduleAt()
+    public function testSettingScheduleAt()
     {
         $t = time();
         $this->sender->scheduleAt(time());
