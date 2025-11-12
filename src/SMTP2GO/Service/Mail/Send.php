@@ -83,7 +83,7 @@ class Send implements BuildsRequest
     /**
      * The template data to use which is key value pairs of [placeholder => replacement]
      * @link https://app-us.smtp2go.com/settings/templates/
-     * @var array
+     * @var array|null
      */
     protected $template_data;
 
@@ -218,7 +218,7 @@ class Send implements BuildsRequest
      */
     public function buildAttachments(): array
     {
-        if (empty($this->attachments)) {
+        if ($this->attachments->count() === 0) {
             return [];
         }
 
@@ -238,7 +238,7 @@ class Send implements BuildsRequest
      */
     public function buildInlines(): array
     {
-        if (empty($this->inlines)) {
+        if ($this->inlines->count() === 0) {
             return [];
         }
 
@@ -470,9 +470,9 @@ class Send implements BuildsRequest
     /**
      * Get the CC'd recipients. This clears any previously added CC addresses
      *
-     * @return  AddressCollection
+     * @return array
      */
-    public function getCc()
+    public function getCc(): array
     {
         return $this->cc;
     }
