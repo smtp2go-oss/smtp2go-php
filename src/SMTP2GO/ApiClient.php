@@ -63,7 +63,7 @@ class ApiClient
      * Array of key value pairs to pass to The GuzzleHttp Client request method
      * These will override any default options used by \SMTP2GO\ApiClient
      *
-     * @var array
+     * @var array<string, mixed>
      * @link https://docs.guzzlephp.org/en/stable/request-options.html
      */
     protected $requestOptions = [];
@@ -100,7 +100,7 @@ class ApiClient
      * The ips of the api servers. These will be used to resolve the
      * host name to an ip address if the first request fails
      * and the maxSendAttempts is greater than 1
-     * @var array
+     * @var array<string>
      */
     protected array $apiServerIps = [];
 
@@ -114,7 +114,7 @@ class ApiClient
     /**
      * Holds information about requests that resulted in RequestException | ConnectException exceptions
      * This is useful for debugging and logging when utilising the retry feature, by setting maxSendAttempts > 1
-     * @var array
+     * @var array<string, mixed>
      */
     protected $failedAttemptInfo = [];
 
@@ -262,7 +262,7 @@ class ApiClient
     {
         if (empty($this->getApiServerIps())) {
             $ips = gethostbynamel(static::HOST);
-            if (!empty($ips) && is_array($ips)) {
+            if (!empty($ips)) {
                 $this->setApiServerIps(array_filter($ips, function ($ip) {
                     return $ip !== $this->ipToIgnore;
                 }));
@@ -289,12 +289,10 @@ class ApiClient
         if (!$asJson) {
             return (string) $this->lastResponse->getBody();
         }
-        if ($this->lastResponse) {
-            try {
-                return Utils::jsonDecode((string) $this->lastResponse->getBody());
-            } catch (\Exception $e) {
-                return (object) [];
-            }
+        try {
+            return Utils::jsonDecode((string) $this->lastResponse->getBody());
+        } catch (\Exception $e) {
+            return (object) [];
         }
     }
 
