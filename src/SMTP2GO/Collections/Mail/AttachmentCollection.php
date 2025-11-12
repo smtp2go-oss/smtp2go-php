@@ -8,7 +8,7 @@ use SMTP2GO\Types\Mail\FileAttachment;
 
 class AttachmentCollection extends Collection
 {
-    protected $items;
+    protected $items = [];
 
     public function __construct(array $attachments = [])
     {
