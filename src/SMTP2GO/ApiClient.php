@@ -32,7 +32,7 @@ class ApiClient
     /**
      * The last response received from the api
      *
-     * @var \Psr\Http\Message\ResponseInterface
+     * @var \Psr\Http\Message\ResponseInterface|null
      */
     protected $lastResponse = null;
 
@@ -40,7 +40,7 @@ class ApiClient
      * If an exception is thrown during the request,
      * the last request will be stored here
      *
-     * @var \Psr\Http\Message\RequestInterface
+     * @var \Psr\Http\Message\RequestInterface|null
      */
     protected $lastRequest = null;
 
@@ -324,7 +324,7 @@ class ApiClient
     /**
      * Set the GuzzleHttp Client instance
      *
-     * @param  \GuzzleHttp\Client $client  The GuzzleHttp Client instance
+     * @param  \GuzzleHttp\Client $httpClient  The GuzzleHttp Client instance
      *
      * @return  ApiClient
      */
@@ -349,7 +349,7 @@ class ApiClient
      * Get the status code from the last response,
      * which is a 3-digit integer result code of the server's attempt to understand and satisfy the request.
      *
-     * @return  int
+     * @return  int|null
      */
     public function getLastResponseStatusCode()
     {
