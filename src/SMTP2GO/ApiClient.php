@@ -30,7 +30,7 @@ class ApiClient
     protected $apiRegion = '';
 
     /**
-     * The last response recieved from the api
+     * The last response received from the api
      *
      * @var \Psr\Http\Message\ResponseInterface
      */

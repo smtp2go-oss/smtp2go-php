@@ -60,7 +60,7 @@ class CustomHeaderCollection extends Collection
                 }
             }
         } else {
-            throw new \InvalidArgumentException('This collection expects objects of type ' . CustomHeader::class, ' but recieved ' . get_class($header));
+            throw new \InvalidArgumentException('This collection expects objects of type ' . CustomHeader::class, ' but received ' . get_class($header));
         }
         return $this;
     }
