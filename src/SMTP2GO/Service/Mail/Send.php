@@ -287,9 +287,8 @@ class Send implements BuildsRequest
     /**
      * Add a custom header
      *
-     * @param string $headerName
-     * @param string $headerValue
-     * @return void
+     * @param  CustomHeader $header
+     * @return Send
      */
     public function addCustomHeader(CustomHeader $header): Send
     {
@@ -300,7 +299,7 @@ class Send implements BuildsRequest
     /**
      * Get sender
      *
-     * @return  string
+     * @return string
      */
     public function getSender(): string
     {
@@ -365,7 +364,7 @@ class Send implements BuildsRequest
     /**
      * Set the email message
      *
-     * @param  string  $message  The email message
+     * @param  string  $htmlBody  The email message
      *
      * @return Send
      */
@@ -406,7 +405,7 @@ class Send implements BuildsRequest
      * add multiple addresses of a specified type
      *
      * @param string $addressType either 'to', 'cc', 'bcc'
-     * @param array $addresses the array should contain multiple arrays with 1 or 2 values with email address and optional name
+     * @param AddressCollection $addresses the array should contain multiple arrays with 1 or 2 values with email address and optional name
      * @return Send
      */
     public function addAddresses(string $addressType, AddressCollection $addresses): Send
@@ -422,8 +421,7 @@ class Send implements BuildsRequest
      * add a single addresses of a specified type
      *
      * @param string $addressType either 'to', 'cc', 'bcc'
-     * @param string $email
-     * @param string $name
+     * @param Address $address
      * @return Send
      */
 
