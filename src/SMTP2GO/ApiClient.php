@@ -21,6 +21,8 @@ class ApiClient
 
     const HOST = 'api.smtp2go.com';
 
+    const VALID_REGIONS = ['us', 'eu', 'au'];
+
     /**
      * The region to use for the api
      * allowed options are 'us', 'eu', 'au'
@@ -399,12 +401,24 @@ class ApiClient
      */
     public function setApiRegion(string $apiRegion)
     {
-        if (!in_array($apiRegion, ['us', 'eu', 'au'])) {
-            throw new \InvalidArgumentException('Invalid region provided. Must be either us, eu or au');
+        if (!in_array($apiRegion, static::VALID_REGIONS)) {
+            throw new \InvalidArgumentException('Invalid region provided. Must be one of ' . implode(', ', static::VALID_REGIONS));
         }
         $this->apiRegion = $apiRegion;
 
         return $this;
+    }
+
+    /**
+     * Get the valid regions with their corresponding api urls
+     */
+    public function getRegionsWithUrls(): array
+    {
+        $regionsWithUrls = [];
+        foreach (static::VALID_REGIONS as $region) {
+            $regionsWithUrls[$region] = sprintf('https://%s-api.smtp2go.com/v3/', $region);
+        }
+        return $regionsWithUrls;
     }
 
     /**
