@@ -1,12 +1,8 @@
 <?php
 
-use GuzzleHttp\Client;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\Psr7\Response;
+
 use PHPUnit\Framework\TestCase;
 use SMTP2GO\ApiClient;
-use SMTP2GO\Service\Service;
 
 class SetRegionTest extends TestCase
 {

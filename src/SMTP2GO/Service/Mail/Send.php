@@ -2,9 +2,6 @@
 
 namespace SMTP2GO\Service\Mail;
 
-
-use SMTP2GO\Mime\Detector;
-
 use InvalidArgumentException;
 use SMTP2GO\Types\Mail\Address;
 use SMTP2GO\Types\Mail\Attachment;

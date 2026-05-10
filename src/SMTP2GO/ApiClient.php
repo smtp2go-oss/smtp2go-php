@@ -110,8 +110,9 @@ class ApiClient
      * In the case of the first request failing, this will  
      * be set to the ip address of the server that failed
      * so that it can be ignored in subsequent requests
+     * @var null|string
      */
-    private $ipToIgnore = null;
+    private $ipToIgnore;
 
     /**
      * Holds information about requests that resulted in RequestException | ConnectException exceptions
@@ -122,7 +123,7 @@ class ApiClient
 
 
 
-    public function __construct($apiKey)
+    public function __construct(string $apiKey)
     {
         $this->apiKey = $apiKey;
         $this->httpClient = new Client;
@@ -220,7 +221,7 @@ class ApiClient
                 if ($e instanceof RequestException) {
                     $this->lastResponse = $e->getResponse();
                 }
-                $this->failedAttemptInfo[] = ['ip' => $serverIpForRequest, 'error' => $e->getMessage(),];
+                $this->failedAttemptInfo[] = ['ip' => $serverIpForRequest ?? 'UNKNOWN', 'error' => $e->getMessage(),];
                 $this->setTimeout($this->getTimeout() + $this->getTimeoutIncrement());
                 if (empty($this->apiServerIps) && $this->maxSendAttempts > 1) {
                     $this->loadApiServerIps();
