@@ -9,6 +9,9 @@ use SMTP2GO\Types\Mail\Address;
 use SMTP2GO\Types\Mail\CustomHeader;
 use SMTP2GO\Collections\Mail\AddressCollection;
 use SMTP2GO\Collections\Mail\CustomHeaderCollection;
+use SMTP2GO\Types\Mail\Attachment;
+use SMTP2GO\Types\Mail\FileAttachment;
+use SMTP2GO\Types\Mail\InlineAttachment;
 
 /**
  * @covers \SMTP2GO\Service\Mail\Send
@@ -170,4 +173,41 @@ class SendSettersTest extends TestCase
     {
         $this->assertEquals('email/send', $this->sender->getEndpoint());
     }
+
+    public function testSettingScheduleAt()
+    {
+        $t = time();
+        $this->sender->scheduleAt(time());
+        $body = $this->sender->buildRequestBody();
+        $this->assertEquals($body['schedule'], $t);
+    }
+
+    public function testSettingScheduleAtInPastThrowsException()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->sender->scheduleAt(time() - 3600); // 1 hour in the past
+        $body = $this->sender->buildRequestBody();
+        $this->assertArrayNotHasKey('schedule', $body);
+    }
+
+    public function testAddingAnInvalidAddressTypeThrowsException()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->sender->addAddress('invalid_type', new Address('test@test'));
+    }
+
+    public function testAddingAnAttachment()
+    {
+
+        $this->sender->addAttachment(new InlineAttachment('file.txt', 'text', 'text/plain'));
+
+        $this->sender->addAttachment(new FileAttachment('text', 'text.txt'));
+        $this->sender->addAttachment(new Attachment(dirname(__FILE__, 2) . '/attachments/cat.jpg','a-cat.jpg'));
+
+        $body = $this->sender->buildRequestBody();
+        $this->assertArrayHasKey('inlines', $body);
+        $this->assertCount(1, $body['inlines']);
+    }
+
+
 }

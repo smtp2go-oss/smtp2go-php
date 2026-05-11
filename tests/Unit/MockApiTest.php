@@ -82,7 +82,6 @@ class MockApiTest extends TestCase
         $this->assertNotEmpty($client->getLastRequest());
         $this->assertFalse($result);
     }
-    
 
     /**
      * @covers \SMTP2GO\Service\Service

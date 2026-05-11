@@ -1,12 +1,8 @@
 <?php
 
-use GuzzleHttp\Client;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\Psr7\Response;
+
 use PHPUnit\Framework\TestCase;
 use SMTP2GO\ApiClient;
-use SMTP2GO\Service\Service;
 
 class SetRegionTest extends TestCase
 {
@@ -55,5 +51,21 @@ class SetRegionTest extends TestCase
         $client = new ApiClient(SMTP2GO_API_KEY);
         $this->expectException(\InvalidArgumentException::class);
         $client->setApiRegion('nz');
+    }
+
+    /**
+     * @covers  \SMTP2GO\Service\Service
+     * @covers \SMTP2GO\ApiClient
+     * @return void
+     */
+    public function testGettingRegionUrlsReturnsAnArrayofRegionsWithTheirUrl()
+    {
+        $client = new ApiClient(SMTP2GO_API_KEY);
+        $regions = $client->getRegionsWithUrls();
+        $this->assertIsArray($regions);
+        $this->assertArrayHasKey('us', $regions);
+        $this->assertArrayHasKey('eu', $regions);
+        $this->assertEquals('https://us-api.smtp2go.com/v3/', $regions['us']);
+        $this->assertEquals('https://eu-api.smtp2go.com/v3/', $regions['eu']);
     }
 }

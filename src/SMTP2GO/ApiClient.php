@@ -21,6 +21,8 @@ class ApiClient
 
     const HOST = 'api.smtp2go.com';
 
+    const VALID_REGIONS = ['us', 'eu', 'au'];
+
     /**
      * The region to use for the api
      * allowed options are 'us', 'eu', 'au'
@@ -30,9 +32,9 @@ class ApiClient
     protected $apiRegion = '';
 
     /**
-     * The last response recieved from the api
+     * The last response received from the api
      *
-     * @var \Psr\Http\Message\ResponseInterface
+     * @var \Psr\Http\Message\ResponseInterface|null
      */
     protected $lastResponse = null;
 
@@ -40,7 +42,7 @@ class ApiClient
      * If an exception is thrown during the request,
      * the last request will be stored here
      *
-     * @var \Psr\Http\Message\RequestInterface
+     * @var \Psr\Http\Message\RequestInterface|null
      */
     protected $lastRequest = null;
 
@@ -63,7 +65,7 @@ class ApiClient
      * Array of key value pairs to pass to The GuzzleHttp Client request method
      * These will override any default options used by \SMTP2GO\ApiClient
      *
-     * @var array
+     * @var array<string, mixed>
      * @link https://docs.guzzlephp.org/en/stable/request-options.html
      */
     protected $requestOptions = [];
@@ -100,7 +102,7 @@ class ApiClient
      * The ips of the api servers. These will be used to resolve the
      * host name to an ip address if the first request fails
      * and the maxSendAttempts is greater than 1
-     * @var array
+     * @var array<string>
      */
     protected array $apiServerIps = [];
 
@@ -108,19 +110,20 @@ class ApiClient
      * In the case of the first request failing, this will  
      * be set to the ip address of the server that failed
      * so that it can be ignored in subsequent requests
+     * @var null|string
      */
-    private $ipToIgnore = null;
+    private $ipToIgnore;
 
     /**
      * Holds information about requests that resulted in RequestException | ConnectException exceptions
      * This is useful for debugging and logging when utilising the retry feature, by setting maxSendAttempts > 1
-     * @var array
+     * @var array<string, mixed>
      */
     protected $failedAttemptInfo = [];
 
 
 
-    public function __construct($apiKey)
+    public function __construct(string $apiKey)
     {
         $this->apiKey = $apiKey;
         $this->httpClient = new Client;
@@ -218,7 +221,7 @@ class ApiClient
                 if ($e instanceof RequestException) {
                     $this->lastResponse = $e->getResponse();
                 }
-                $this->failedAttemptInfo[] = ['ip' => $serverIpForRequest, 'error' => $e->getMessage(),];
+                $this->failedAttemptInfo[] = ['ip' => $serverIpForRequest ?? 'UNKNOWN', 'error' => $e->getMessage(),];
                 $this->setTimeout($this->getTimeout() + $this->getTimeoutIncrement());
                 if (empty($this->apiServerIps) && $this->maxSendAttempts > 1) {
                     $this->loadApiServerIps();
@@ -262,7 +265,7 @@ class ApiClient
     {
         if (empty($this->getApiServerIps())) {
             $ips = gethostbynamel(static::HOST);
-            if (!empty($ips) && is_array($ips)) {
+            if (!empty($ips)) {
                 $this->setApiServerIps(array_filter($ips, function ($ip) {
                     return $ip !== $this->ipToIgnore;
                 }));
@@ -289,12 +292,10 @@ class ApiClient
         if (!$asJson) {
             return (string) $this->lastResponse->getBody();
         }
-        if ($this->lastResponse) {
-            try {
-                return Utils::jsonDecode((string) $this->lastResponse->getBody());
-            } catch (\Exception $e) {
-                return (object) [];
-            }
+        try {
+            return Utils::jsonDecode((string) $this->lastResponse->getBody());
+        } catch (\Exception $e) {
+            return (object) [];
         }
     }
 
@@ -324,7 +325,7 @@ class ApiClient
     /**
      * Set the GuzzleHttp Client instance
      *
-     * @param  \GuzzleHttp\Client $client  The GuzzleHttp Client instance
+     * @param  \GuzzleHttp\Client $httpClient  The GuzzleHttp Client instance
      *
      * @return  ApiClient
      */
@@ -349,7 +350,7 @@ class ApiClient
      * Get the status code from the last response,
      * which is a 3-digit integer result code of the server's attempt to understand and satisfy the request.
      *
-     * @return  int
+     * @return  int|null
      */
     public function getLastResponseStatusCode()
     {
@@ -401,12 +402,24 @@ class ApiClient
      */
     public function setApiRegion(string $apiRegion)
     {
-        if (!in_array($apiRegion, ['us', 'eu', 'au'])) {
-            throw new \InvalidArgumentException('Invalid region provided. Must be either us, eu or au');
+        if (!in_array($apiRegion, static::VALID_REGIONS)) {
+            throw new \InvalidArgumentException('Invalid region provided. Must be one of ' . implode(', ', static::VALID_REGIONS));
         }
         $this->apiRegion = $apiRegion;
 
         return $this;
+    }
+
+    /**
+     * Get the valid regions with their corresponding api urls
+     */
+    public function getRegionsWithUrls(): array
+    {
+        $regionsWithUrls = [];
+        foreach (static::VALID_REGIONS as $region) {
+            $regionsWithUrls[$region] = sprintf('https://%s-api.smtp2go.com/v3/', $region);
+        }
+        return $regionsWithUrls;
     }
 
     /**

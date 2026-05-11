@@ -26,7 +26,7 @@ class AddressCollection extends Collection
         if (is_a($address, Address::class)) {
             $this->items[] = $address;
         } else {
-            throw new InvalidArgumentException('This collection expects objects of type ' . Address::class, ' but recieved ' . get_class($address));
+            throw new InvalidArgumentException('This collection expects objects of type ' . Address::class, ' but received ' . get_class($address));
         }
         return $this;
     }
