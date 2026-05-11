@@ -1,36 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit colors="true"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
-         bootstrap="vendor/autoload.php"
-         cacheResultFile=".phpunit.cache/test-results"
-         executionOrder="depends,defects"
-         forceCoversAnnotation="false"
-         beStrictAboutCoversAnnotation="false"
-         beStrictAboutOutputDuringTests="false"
-         beStrictAboutTodoAnnotatedTests="false"
-         failOnRisky="true"
-         failOnWarning="true"
-         verbose="true">
+<phpunit colors="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd" bootstrap="vendor/autoload.php"
+    cacheResultFile=".phpunit.cache/test-results" executionOrder="depends,defects" 
+     beStrictAboutOutputDuringTests="true" beStrictAboutTodoAnnotatedTests="true"
+    failOnRisky="true" failOnWarning="true" verbose="true">
     <testsuites>
         <testsuite name="default">
             <directory suffix="Test.php">tests</directory>
         </testsuite>
     </testsuites>
 
-    <coverage cacheDirectory=".phpunit.cache/code-coverage"
-              processUncoveredFiles="true">
+    <coverage cacheDirectory=".phpunit.cache/code-coverage" processUncoveredFiles="true">
         <include>
             <directory suffix=".php">src</directory>
         </include>
     </coverage>
-     <!-- add your own values  
-         <php>
-        <const name="SMTP2GO_API_KEY" value="" />
-        <const name="SMTP2GO_TEST_RECIPIENT_NAME" value="" />
-        <const name="SMTP2GO_TEST_RECIPIENT_EMAIL" value="" />
-        <const name="SMTP2GO_TEST_SENDER" value="" />
-        <const name="SMTP2GO_TEST_SENDER_NAME" value="" />
-        <const name="SMTP2GO_TEST_SENDER_EMAIL" value="" />
-        <const name="SMTP2GO_TEST_SUBJECT" value="" />
-    </php> -->
+    <php>
+        <const name="SMTP2GO_API_KEY" value="api-123456789ABCDE" />
+        <const name="SMTP2GO_TEST_RECIPIENT" value="Test Recipient &lt;recipient@local&gt;" />
+        <const name="SMTP2GO_TEST_RECIPIENT_NAME" value="Test Recipient" />
+        <const name="SMTP2GO_TEST_RECIPIENT_EMAIL" value="recipient@local" />
+        <const name="SMTP2GO_TEST_SENDER" value="Automated Test Sender &lt;sender@local&gt;" />
+        <const name="SMTP2GO_TEST_SENDER_NAME" value="Automated Test Sender" />
+        <const name="SMTP2GO_TEST_SENDER_EMAIL" value="sender@local" />
+        <const name="SMTP2GO_TEST_SUBJECT" value="PHPUnit Test Email" />
+    </php>
 </phpunit>
