@@ -204,7 +204,10 @@ $res = $client->consume($sendService);
 
 ### Consuming an endpoint in the API using the Service class
 ```php
-$apiClient = new ApiClient('api-YOURAPIKEY');
+use SMTP2GO\ApiClient;
+use SMTP2GO\Service\Service;
+
+$client = new ApiClient('api-YOURAPIKEY');
 
 $success = $client->consume((new Service('domain/verify', ['domain' => 'mydomain.tld'])));
 ```
