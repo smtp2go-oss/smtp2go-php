@@ -12,22 +12,22 @@ use SMTP2GO\Types\Mail\CustomHeader;
 
 /**
  * @covers \SMTP2GO\Service\Mail\Send
-* @covers \SMTP2GO\Collections\Collection::current
-* @covers \SMTP2GO\Collections\Collection::next
-* @covers \SMTP2GO\Collections\Collection::rewind
-* @covers \SMTP2GO\Collections\Collection::valid
-* @covers \SMTP2GO\Collections\Mail\AddressCollection::__construct
-* @covers \SMTP2GO\Collections\Mail\AddressCollection::add
-* @covers \SMTP2GO\Collections\Mail\AttachmentCollection::__construct
-* @covers \SMTP2GO\Collections\Mail\CustomHeaderCollection::__construct
-* @covers \SMTP2GO\Types\Mail\Address::__construct
-* @covers \SMTP2GO\Types\Mail\Address::getEmail
-* @covers \SMTP2GO\Types\Mail\Address::getName
-* @covers \SMTP2GO\Collections\Mail\CustomHeaderCollection
-* @covers \SMTP2GO\Collections\Mail\AttachmentCollection
-* @covers \SMTP2GO\Types\Mail\Attachment
-* @covers \SMTP2GO\Types\Mail\CustomHeader
-* @covers \SMTP2GO\Types\Mail\InlineAttachment
+ * @covers \SMTP2GO\Collections\Collection::current
+ * @covers \SMTP2GO\Collections\Collection::next
+ * @covers \SMTP2GO\Collections\Collection::rewind
+ * @covers \SMTP2GO\Collections\Collection::valid
+ * @covers \SMTP2GO\Collections\Mail\AddressCollection::__construct
+ * @covers \SMTP2GO\Collections\Mail\AddressCollection::add
+ * @covers \SMTP2GO\Collections\Mail\AttachmentCollection::__construct
+ * @covers \SMTP2GO\Collections\Mail\CustomHeaderCollection::__construct
+ * @covers \SMTP2GO\Types\Mail\Address::__construct
+ * @covers \SMTP2GO\Types\Mail\Address::getEmail
+ * @covers \SMTP2GO\Types\Mail\Address::getName
+ * @covers \SMTP2GO\Collections\Mail\CustomHeaderCollection
+ * @covers \SMTP2GO\Collections\Mail\AttachmentCollection
+ * @covers \SMTP2GO\Types\Mail\Attachment
+ * @covers \SMTP2GO\Types\Mail\CustomHeader
+ * @covers \SMTP2GO\Types\Mail\InlineAttachment
  */
 class SendServiceTest extends TestCase
 {
@@ -132,7 +132,7 @@ class SendServiceTest extends TestCase
     {
         $sendService = $this->createTestInstance();
 
-        $sendService->setAttachments(new AttachmentCollection([new Attachment(dirname(__FILE__, 2) . '/Attachments/cat.jpg')]));
+        $sendService->setAttachments(new AttachmentCollection([new Attachment(dirname(__FILE__, 2) . '/attachments/cat.jpg')]));
 
         $request_data = $sendService->buildRequestBody();
 
@@ -187,4 +187,6 @@ class SendServiceTest extends TestCase
         $sendService->setSender(new Address(SMTP2GO_TEST_SENDER_EMAIL));
         $this->assertTrue($sendService->getSender() == SMTP2GO_TEST_SENDER_EMAIL);
     }
+
+
 }
