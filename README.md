@@ -138,7 +138,7 @@ echo $apiClient->getFailedAttempts(); // total number of failed attempts
 
 ### Attachments
 
-**`FileAttachment`** — attach a file by passing its raw content and a filename. The MIME type is detected automatically from the filename extension:
+**`FileAttachment`** - attach a file by passing its raw content and a filename. The MIME type is detected automatically from the filename extension:
 
 ```php
 use SMTP2GO\Types\Mail\FileAttachment;
@@ -149,7 +149,7 @@ $sendService->setAttachments(new AttachmentCollection([
 ]));
 ```
 
-**`InlineAttachment`** — embed an image directly in the HTML body using a content ID:
+**`InlineAttachment`** - embed an image directly in the HTML body using a content ID:
 
 ```php
 use SMTP2GO\Types\Mail\InlineAttachment;
@@ -171,7 +171,7 @@ $sendService->addCustomHeader(new CustomHeader('X-Mailer', 'MyApp'));
 ### Sending email using a template
 https://app-us.smtp2go.com/settings/templates/
 
-This example is for the example template "User Welcome"
+This sample code is for the example template "User Welcome"
 
 ```php
 use SMTP2GO\ApiClient;
@@ -209,19 +209,6 @@ $apiClient = new ApiClient('api-YOURAPIKEY');
 $success = $client->consume((new Service('domain/verify', ['domain' => 'mydomain.tld'])));
 ```
 
-## Testing
-
-Copy `phpunit.xml` to `phpunit-dev.xml` and fill in your credentials in the `<php>` block, then run:
-
-```bash
-vendor/bin/phpunit -c phpunit-dev.xml
-```
-
-To generate an HTML coverage report (requires Xdebug or PCOV):
-
-```bash
-vendor/bin/phpunit -c phpunit-dev.xml --coverage-html /path/to/output
-```
 
 ## License
 
