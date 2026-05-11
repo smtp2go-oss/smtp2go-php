@@ -2,9 +2,19 @@
 
 This library provides a simple way to send email via the SMTP2GO API and also access other endpoints in the API in a standard way.
 
+## Requirements
+
+- PHP >= 7.4
+- [Guzzle](https://github.com/guzzle/guzzle) ^7.0 (installed automatically via Composer)
+
 ## Installation
 
-```composer require smtp2go-oss/smtp2go-php```
+```
+composer require smtp2go-oss/smtp2go-php
+```
+
+You can obtain an API key from [app.smtp2go.com/settings/apikeys](https://app-us.smtp2go.com/sending/apikeys/).
+
 ## Examples
 
 ### Sending an Email
@@ -71,6 +81,93 @@ $responseBody = $apiClient->getResponseBody();
 
 ```
 
+### Handling the Response
+
+`consume()` returns `true` if the API responded with HTTP 200, `false` otherwise. Use the response methods to inspect the result or diagnose failures:
+
+```php
+$success = $apiClient->consume($sendService);
+
+if ($success) {
+    $body = $apiClient->getResponseBody(); // stdClass
+    echo $body->data->succeeded; // number of messages queued
+} else {
+    $body = $apiClient->getResponseBody();
+    echo $body->data->error;      // human-readable error message
+    echo $body->data->error_code; // machine-readable error code
+
+    // If an exception was thrown (e.g. connection failure):
+    echo $apiClient->getLastRequest();          // the outgoing request as a string
+    echo $apiClient->getLastResponseStatusCode(); // HTTP status code, or null
+}
+```
+
+To get the raw response headers:
+
+```php
+$headers = $apiClient->getResponseHeaders(); // array
+```
+
+### Scheduling an Email
+
+Pass a Unix timestamp up to 3 days in the future to `scheduleAt()`:
+
+```php
+$sendService->scheduleAt(strtotime('+2 hours'));
+$apiClient->consume($sendService);
+```
+
+### Retry / Failover
+
+When `setMaxSendAttempts()` is greater than 1, the client will automatically resolve alternative IP addresses for `api.smtp2go.com` and retry failed requests against them, increasing the timeout by `setTimeoutIncrement()` seconds on each attempt. Useful for high-reliability sending.
+
+```php
+$apiClient->setMaxSendAttempts(5);   // try up to 5 different IPs
+$apiClient->setTimeoutIncrement(5);  // add 5 seconds to timeout per attempt
+```
+
+After a failed send you can inspect what happened:
+
+```php
+foreach ($apiClient->getFailedAttemptInfo() as $attempt) {
+    echo $attempt['ip'];    // IP that was tried
+    echo $attempt['error']; // exception message
+}
+echo $apiClient->getFailedAttempts(); // total number of failed attempts
+```
+
+### Attachments
+
+**`FileAttachment`** — attach a file by passing its raw content and a filename. The MIME type is detected automatically from the filename extension:
+
+```php
+use SMTP2GO\Types\Mail\FileAttachment;
+use SMTP2GO\Collections\Mail\AttachmentCollection;
+
+$sendService->setAttachments(new AttachmentCollection([
+    new FileAttachment(file_get_contents('/path/to/report.pdf'), 'report.pdf'),
+]));
+```
+
+**`InlineAttachment`** — embed an image directly in the HTML body using a content ID:
+
+```php
+use SMTP2GO\Types\Mail\InlineAttachment;
+
+// Reference in your HTML as: <img src="cid:my-image">
+$inline = new InlineAttachment('my-image', file_get_contents('/path/to/image.jpg'), 'image/jpeg');
+$sendService->addAttachment($inline);
+```
+
+### Custom Headers
+
+```php
+use SMTP2GO\Types\Mail\CustomHeader;
+
+$sendService->addCustomHeader(new CustomHeader('Reply-To', 'replyto@email.test'));
+$sendService->addCustomHeader(new CustomHeader('X-Mailer', 'MyApp'));
+```
+
 ### Sending email using a template
 https://app-us.smtp2go.com/settings/templates/
 
@@ -104,11 +201,26 @@ $sendService->setTemplateData([
 
 $res = $client->consume($sendService);
 ```
-### Consuming an endpoint in the API using the generic Service class
+
+### Consuming an endpoint in the API using the Service class
 ```php
 $apiClient = new ApiClient('api-YOURAPIKEY');
 
 $success = $client->consume((new Service('domain/verify', ['domain' => 'mydomain.tld'])));
+```
+
+## Testing
+
+Copy `phpunit.xml` to `phpunit-dev.xml` and fill in your credentials in the `<php>` block, then run:
+
+```bash
+vendor/bin/phpunit -c phpunit-dev.xml
+```
+
+To generate an HTML coverage report (requires Xdebug or PCOV):
+
+```bash
+vendor/bin/phpunit -c phpunit-dev.xml --coverage-html /path/to/output
 ```
 
 ## License
