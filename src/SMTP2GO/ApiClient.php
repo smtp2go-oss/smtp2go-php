@@ -186,7 +186,7 @@ class ApiClient
                     $curlOpts = [
                         'curl' => [
                             CURLOPT_RESOLVE => [
-                                static::HOST . ':443:' . $serverIpForRequest,
+                                $this->getHost() . ':443:' . $serverIpForRequest,
                             ],
                         ],
                     ];
@@ -199,7 +199,7 @@ class ApiClient
                         'json'   => $body,
                         'verify' => $caPathOrFile,
                         'headers' => [
-                            'host' => static::HOST,
+                            'host' => $this->getHost(),
                         ],
                         'timeout' => $this->getTimeout(),
                         $curlOpts,
@@ -251,6 +251,19 @@ class ApiClient
         return sprintf('https://%s-api.smtp2go.com/v3/', $this->getApiRegion());
     }
 
+    /**
+     * Get the host to use for the api request, based on the region set by the user
+     *
+     * @return string
+     */
+    public function getHost(): string
+    {
+        if ($this->getApiRegion() === '') {
+            return static::HOST;
+        }
+        return sprintf('%s-api.smtp2go.com', $this->getApiRegion());
+    }
+
     protected function getServerIpForRequest()
     {
         if (empty($this->apiServerIps)) {
@@ -264,7 +277,7 @@ class ApiClient
     private function loadApiServerIps()
     {
         if (empty($this->getApiServerIps())) {
-            $ips = gethostbynamel(static::HOST);
+            $ips = gethostbynamel($this->getHost());
             if (!empty($ips)) {
                 $this->setApiServerIps(array_filter($ips, function ($ip) {
                     return $ip !== $this->ipToIgnore;
