@@ -195,14 +195,10 @@ class ApiClient
                     $service->getMethod(),
                     $this->getApiUrl() . $service->getEndpoint(),
                     //ensures user options can overwrite these defaults
-                    $this->requestOptions + [
+                    $this->requestOptions + $curlOpts + [
                         'json'   => $body,
                         'verify' => $caPathOrFile,
-                        'headers' => [
-                            'host' => $this->getHost(),
-                        ],
                         'timeout' => $this->getTimeout(),
-                        $curlOpts,
                         'on_stats' => function (\GuzzleHttp\TransferStats $stats) {
                             $handlerStats = $stats->getHandlerStats();
                             $this->ipToIgnore = $handlerStats['primary_ip'] ?? null;
