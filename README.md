@@ -117,9 +117,9 @@ $sendService->scheduleAt(strtotime('+2 hours'));
 $apiClient->consume($sendService);
 ```
 
-### Retry / Failover
+### Retry / Failover`
 
-When `setMaxSendAttempts()` is greater than 1, the client will automatically resolve alternative IP addresses for `api.smtp2go.com` and retry failed requests against them, increasing the timeout by `setTimeoutIncrement()` seconds on each attempt. Useful for high-reliability sending.
+When `setMaxSendAttempts()` is greater than 1, the client will automatically resolve alternative IP addresses for `api.smtp2go.com` and retry failed requests against them, increasing the timeout by `setTimeoutIncrement()` seconds on each attempt. Useful for high-reliability sending. Requires ext-curl.
 
 ```php
 $apiClient->setMaxSendAttempts(5);   // try up to 5 different IPs
