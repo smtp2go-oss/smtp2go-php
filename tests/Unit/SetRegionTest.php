@@ -62,7 +62,6 @@ class SetRegionTest extends TestCase
     {
         $client = new ApiClient(SMTP2GO_API_KEY);
         $regions = $client->getRegionsWithUrls();
-        $this->assertIsArray($regions);
         $this->assertArrayHasKey('us', $regions);
         $this->assertArrayHasKey('eu', $regions);
         $this->assertEquals('https://us-api.smtp2go.com/v3/', $regions['us']);

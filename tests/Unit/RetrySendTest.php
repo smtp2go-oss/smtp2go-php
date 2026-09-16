@@ -53,7 +53,7 @@ class RetrySendTest extends TestCase
         $result = $apiClient->consume($service);
         $this->assertTrue($result);
         // 3 attempts so 1 possible ip will be left (127.0.0.1) after the others are array_pop'd
-        $this->assertCount(1, $apiClient->getApiServerIps(false));
+        $this->assertCount(1, $apiClient->getApiServerIps());
         $this->assertEquals(2, $apiClient->getFailedAttempts());
 
         $this->assertCount(2, $apiClient->getFailedAttemptInfo());

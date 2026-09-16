@@ -55,7 +55,7 @@ class SendServiceTest extends TestCase
         $sendService = $this->createTestInstance();
         $sendService->addAddress('to', new Address('test@test.test'));
 
-        return $this->assertCount(3, $sendService->getRecipients());
+        $this->assertCount(3, $sendService->getRecipients());
     }
 
     public function testSubjectIsSetByConstructor()
