@@ -98,6 +98,13 @@ class SendSettersTest extends TestCase
         $this->assertContains('cc@test.test', $this->sender->getcc());
     }
 
+    public function testAddingAnAddressWithControlCharacters()
+    {
+        $this->sender->addAddress('to', new Address("to@test.test\r\n","Test,User\n"));   
+        $recipients = $this->sender->getRecipients();
+        $this->assertEquals('"Test,User" <to@test.test>', array_pop($recipients));
+    }
+
     /**
      * @return void 
      * @throws InvalidArgumentException 

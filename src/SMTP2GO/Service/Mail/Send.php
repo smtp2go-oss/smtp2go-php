@@ -21,7 +21,7 @@ class Send implements BuildsRequest
 
 
     /**
-     * Sender RFC-822 formatted email "John Smith <john@example.com>"
+     * Sender RFC-5322 formatted email "John Smith <john@example.com>"
      *
      * @var string
      */
@@ -310,7 +310,7 @@ class Send implements BuildsRequest
     }
 
     /**
-     * Set sender as RFC-822 formatted email "John Smith <john@example.com>"
+     * Set sender as RFC-5322 formatted email "John Smith <john@example.com>"
      *
      * @param Address $address
      *
@@ -318,15 +318,8 @@ class Send implements BuildsRequest
      */
     public function setSender(Address $address): Send
     {
-        $name = $address->getName();
-        $email = $address->getEmail();
-        if (!empty($name)) {
-            $email        = str_replace(['<', '>'], '', $email);
-            $this->sender = "\"$name\" <$email>";
-        } else {
-            $this->sender = "$email";
-        }
 
+        $this->sender = $address->toString();
         return $this;
     }
 
@@ -427,21 +420,13 @@ class Send implements BuildsRequest
      * @param Address $address
      * @return Send
      */
-
     public function addAddress(string $addressType, Address $address): Send
     {
         if (!in_array($addressType, ['to', 'cc', 'bcc'])) {
             throw new InvalidArgumentException('$addressType must be one of either "to", "cc" or "bcc"');
         }
-        $name = $address->getName();
-        $email = $address->getEmail();
+        $this->$addressType[] = $address->toString();
 
-        if (!empty($name)) {
-            $email                = str_replace(['<', '>'], '', $email);
-            $this->$addressType[] = "$name <$email>";
-        } else {
-            $this->$addressType[] = "$email";
-        }
         return $this;
     }
 
