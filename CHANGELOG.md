@@ -3,6 +3,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [Unreleased]
+
+### Fixed
+
+- Incorrect setting of cURL options in `ApiClient`
+
+### Changed
+
+- Strip control characters from addresses and custom header values
+- Quote and escape display names in `to`, `cc` and `bcc`, matching the existing `sender` behaviour
+- Trim custom header values
+- **BC**: `CustomHeader` now throws `InvalidArgumentException` when given a header name containing a colon, whitespace, or any other character not permitted by RFC 5322. Such names previously produced a malformed header
+
 ## [1.2.0] - 2026-05-22
 - Make getRegionWithUrls static
 
