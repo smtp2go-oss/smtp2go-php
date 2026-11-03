@@ -9,8 +9,10 @@ class CustomHeader
     protected $value = '';
 
     /**
+     * @deprecated 
      * A header name must be an RFC-5322 field name: printable US-ASCII
      * characters excluding the colon, which separates the name from the value.
+     * This was used in 1.3.0 but for API compatability, we'll rely on its validation instead
      */
     const VALID_HEADER_NAME = '/^[!-9;-~]+$/';
 
@@ -59,17 +61,10 @@ class CustomHeader
      *
      *
      * @return  self
-     * @throws \InvalidArgumentException if $header is not a valid header name
+
      */
     public function setHeader(string $header)
     {
-        if (!preg_match(static::VALID_HEADER_NAME, $header)) {
-            throw new \InvalidArgumentException(
-                'Invalid header name "' . $header . '". A header name must consist of printable '
-                    . 'ASCII characters excluding the colon.'
-            );
-        }
-
         $this->header = $header;
 
         return $this;
