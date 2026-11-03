@@ -3,6 +3,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [1.3.2] - 2026-11-04
+
+### Changed
+
+- Replaced deprecated GuzzleHttp Utils::jsonDecode with native json_decode call
+
+
 ## [1.3.1] - 2026-11-03
 
 ### Changed
