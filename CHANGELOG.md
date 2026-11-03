@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [1.3.1] - 2026-11-03
+
+### Changed
+
+- Revert CustomHeader throwing `InvalidArgumentException`. Invalid headers are dropped upstream.
+
 ## [1.3.0] - 2026-09-17
 
 ### Fixed
