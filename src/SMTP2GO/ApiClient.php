@@ -8,7 +8,6 @@ use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Utils;
 use SMTP2GO\Contracts\BuildsRequest;
 
 class ApiClient
@@ -301,11 +300,12 @@ class ApiClient
         if (!$asJson) {
             return (string) $this->lastResponse->getBody();
         }
-        try {
-            return Utils::jsonDecode((string) $this->lastResponse->getBody());
-        } catch (\Exception $e) {
+
+        $response = json_decode((string) $this->lastResponse->getBody());
+        if (json_last_error() !== JSON_ERROR_NONE) {
             return (object) [];
         }
+        return $response;
     }
 
     /**
